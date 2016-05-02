@@ -1,0 +1,29 @@
+-1d metric('blah', 'blah', 'blah')
+5:30pm metric("blah", "blah", "blah")
+5:30pm to 6:30pm metric('*', 'b', 'b') | avg | graph
+5:00 to 18:30 metric('*', 'b', 'b') | avg | graph
+2013-10-10 5:30pm to 6:30pm metric('*', 'b', 'b') | avg | graph
+2013-10-10 5:00 to 16:30 metric('*', 'b', 'b') | avg | graph
+2013-10-10 5:30am to 2013-10-10 6:30pm m('*', 'b', 'b') m('*', 'b', 'b') | avg('blah') | graph
+2013-10-10 17:30 to 2013-10-10 16:30 m('*', 'b', 'b') m('*', 'b', 'b') | avg('blah') | graph
+
+-1h m(['*'], ['b', 'b'], ['c', 'c', "c"])
+-1h m('*', ['b', 'b'], ['c', 'c', "c"])
+-1h m(['b', 'b'], '*', ['c', 'c', "c"])
+-1h m(['*'], 'b', ['c', 'c', "c"])
+-1h m(['*'], ['b', 'b'], 'c')
+
+-1h m('*', 'b', 'b') m('*', 'b', 'b') + m('*', 'b', 'b')
+-1h m('*', 'b', 'b') + m('*', 'b', 'b') - m('*', 'b', 'b') * m('*', 'b', 'b') / m('*', 'b', 'b')
+-1h abs( m('*', 'b', 'b') + m('*', 'b', 'b') )
+-1h abs( m('*', 'b', 'b') + m('*', 'b', 'b') ) + fun(m('*', 'b', 'b') * m('*', 'b', 'b') )
+
+-1h m('*', 'b', 'b') | avg | graph
+-1h m('*', 'b', 'b') | avg | sum('blah', 23, 14) | graph
+-1h m('*', 'b', 'b') m('*', 'b', 'b') | avg('blah') | graph
+-1h m('*', 'b', 'b') | mavg(1h)
+
+-1h m('*', 'b', 'b') + m('*', 'b', 'b') - m('*', 'b', 'b') * m('*', 'b', 'b') / m('*', 'b', 'b') | avg | graph
+-1h abs( m('*', 'b', 'b') + m('*', 'b', 'b') )| avg | sum('blah', 23, 15.3) | graph
+-1h abs( m('*', 'b', 'b') + m('*', 'b', 'b') ) + fun(m('*', 'b', 'b') * m('*', 'b', 'b') )| avg('blah') | graph 
+-1h m('*', 'b', 'b') | sum( abs(2) + 3 - sum)

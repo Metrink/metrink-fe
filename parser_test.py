@@ -43,6 +43,7 @@ if __name__ == '__main__':
 
             tree = parser.graph_query()
 
+
             if tree is not None:
                 print('WORKED: ' + l)
 

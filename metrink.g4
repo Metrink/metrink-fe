@@ -7,13 +7,13 @@ graph_expression:
     (additive_expression)+ (connector function)*;
 
 connector:
-    '|' | '>|' | '&';
+    PIPE | COPY_PIPE | AMP;
 
 metric:
-    ('metric'|'m') '(' (string_array|STRING_LITERAL) ',' (string_array|STRING_LITERAL) ',' (string_array|STRING_LITERAL) (','(relative_time_literal|relative_time_array))? ')';
+    METRIC LPAREN (string_array|STRING_LITERAL) COMMA (string_array|STRING_LITERAL) COMMA (string_array|STRING_LITERAL) (COMMA (relative_time_literal|relative_time_array))? RPAREN;
 
 string_array:
-    '[' STRING_LITERAL (',' STRING_LITERAL)* ']';
+    LBRACKET STRING_LITERAL (COMMA STRING_LITERAL)* RBRACKET;
 
 function:
     function_name ( argument_list )?;
@@ -22,47 +22,86 @@ function_name:
     IDENTIFIER;
 
 argument_list:
-    '(' argument (',' argument)* ')';
+    LPAREN argument (COMMA argument)* RPAREN;
 
 argument:
     relative_time_literal | additive_expression | STRING_LITERAL | percent_literal | boolean_literal;
 
 additive_expression:
-    multiplicative_expression ( ('+'|'-') additive_expression )?;
+    multiplicative_expression ( (PLUS|MINUS) additive_expression )?;
 
 multiplicative_expression:
-    (number_literal|metric|function) ( ('*'|'/') multiplicative_expression )?;
+    (number_literal|metric|function) ( (MUL|DIV) multiplicative_expression )?;
 
 number_literal:
     INTEGER_LITERAL | FLOATING_POINT_LITERAL;
 
 relative_time_array:
-    '[' relative_time_literal (',' relative_time_literal)* ']';
+    LBRACKET relative_time_literal (COMMA relative_time_literal)* RBRACKET;
 
 relative_time_literal:
-    '-'? integer_literal relative_time_indicator;
+    MINUS? INTEGER_LITERAL TIME_INDICATOR;
 
 absolute_date_literal:
-    integer_literal '-' integer_literal '-' integer_literal absolute_time_literal;
+    INTEGER_LITERAL MINUS INTEGER_LITERAL MINUS INTEGER_LITERAL absolute_time_literal;
 
 absolute_time_literal:
-    integer_literal ':' integer_literal (PM_INDICATOR|AM_INDICATOR)?;
+    INTEGER_LITERAL COLON INTEGER_LITERAL (PM_INDICATOR|AM_INDICATOR)?;
 
 percent_literal:
-    '-'? integer_literal '%';
+    MINUS? INTEGER_LITERAL REM;
 
 boolean_literal:
     TRUE | FALSE;
 
-integer_literal:
-    INTEGER_LITERAL;
-
-relative_time_indicator:
-    TIME_INDICATOR | 'm';
-
 /*
  * TOKENS
  */
+PIPE:
+    '|';
+
+COPY_PIPE:
+    '>|';
+
+AMP:
+    '&';
+
+METRIC:
+    ('metric'|'m');
+
+LPAREN:
+    '(';
+
+RPAREN:
+    ')';
+
+LBRACKET:
+    '[';
+
+RBRACKET:
+    ']';
+
+COMMA:
+    ',';
+
+PLUS:
+    '+';
+
+MINUS:
+    '-';
+
+MUL:
+    '*';
+
+DIV:
+    '/';
+
+REM:
+    '%';
+
+COLON:
+    ':';
+
 IDENTIFIER:
     [a-zA-Z][a-zA-Z0-9]*;
 
@@ -73,7 +112,7 @@ FLOATING_POINT_LITERAL:
     ([0-9]+'.'[0-9]*)|('.'[0-9]+);
 
 TIME_INDICATOR:
-    [shd];
+    [shmd];
 
 PM_INDICATOR:
     [pP][mM];

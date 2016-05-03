@@ -1,6 +1,7 @@
 .idea/*
 *.bak
 grammar.py
+gen/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

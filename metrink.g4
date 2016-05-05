@@ -102,15 +102,6 @@ REM:
 COLON:
     ':';
 
-IDENTIFIER:
-    [a-zA-Z][a-zA-Z0-9]*;
-
-INTEGER_LITERAL:
-    [0-9]+;
-
-FLOATING_POINT_LITERAL:
-    ([0-9]+'.'[0-9]*)|('.'[0-9]+);
-
 TIME_INDICATOR:
     [shmd];
 
@@ -125,6 +116,15 @@ TRUE:
 
 FALSE:
     'false'|'FALSE';
+
+IDENTIFIER:
+    [a-zA-Z][a-zA-Z0-9]*;
+
+INTEGER_LITERAL:
+    [0-9]+;
+
+FLOATING_POINT_LITERAL:
+    ([0-9]+'.'[0-9]*)|('.'[0-9]+);
 
 STRING_LITERAL:
    QUOTE SCharSequence? QUOTE;

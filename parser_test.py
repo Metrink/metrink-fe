@@ -36,6 +36,15 @@ if __name__ == '__main__':
             istream = InputStream(l)
             lexer = metrinkLexer(istream)
             stream = CommonTokenStream(lexer)
+
+            # print out the token parsing
+            stream.fill()
+            print('INPUT: ' + l)
+
+            for token in stream.tokens:
+                if token.text != '<EOF>':
+                    print("%s: %s" % (token.text, metrinkLexer.symbolicNames[token.type-1]))
+
             parser = metrinkParser(stream)
 
             parser.removeErrorListeners()

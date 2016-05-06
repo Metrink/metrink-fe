@@ -56,6 +56,10 @@ if __name__ == '__main__':
             if tree is not None:
                 print('WORKED: ' + l)
 
+            visitor = metrinkVisitor()
+
+            visitor.visit(tree)
+
             # printer = MetrinkPrintListener()
             # walker = ParseTreeWalker()
             # walker.walk(printer, tree)

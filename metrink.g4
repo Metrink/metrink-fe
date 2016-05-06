@@ -1,7 +1,7 @@
 grammar metrink;
 
 graph_query:
-    (relative_time_literal | absolute_date_literal | absolute_time_literal) ('to' (absolute_date_literal | absolute_time_literal) )? graph_expression;
+    (start_time = relative_time_literal | start_time = absolute_date_literal | start_time = absolute_time_literal) ('to' (end_time = absolute_date_literal | end_time = absolute_time_literal) )? graph_expression;
 
 graph_expression:
     (additive_expression)+ (connector function)*;
@@ -10,10 +10,10 @@ connector:
     PIPE | COPY_PIPE | AMP;
 
 metric:
-    METRIC LPAREN (string_array|STRING_LITERAL) COMMA (string_array|STRING_LITERAL) COMMA (string_array|STRING_LITERAL) (COMMA (relative_time_literal|relative_time_array))? RPAREN;
+    METRIC LPAREN (host=string_array|host=string_literal {localctx.host = [localctx.host] }) COMMA (group=string_array|group=string_literal {localctx.group = [localctx.group] }) COMMA (name=string_array|name=string_literal {localctx.name = [localctx.name] }) (COMMA (prev_time=relative_time_literal|prev_time=relative_time_array))? RPAREN;
 
 string_array:
-    LBRACKET STRING_LITERAL (COMMA STRING_LITERAL)* RBRACKET;
+    LBRACKET string_literal (COMMA string_literal)* RBRACKET;
 
 function:
     function_name ( argument_list )?;
@@ -25,7 +25,7 @@ argument_list:
     LPAREN argument (COMMA argument)* RPAREN;
 
 argument:
-    relative_time_literal | additive_expression | STRING_LITERAL | percent_literal | boolean_literal;
+    relative_time_literal | additive_expression | string_literal | percent_literal | boolean_literal;
 
 additive_expression:
     multiplicative_expression ( (PLUS|MINUS) additive_expression )?;
@@ -53,6 +53,9 @@ percent_literal:
 
 boolean_literal:
     TRUE | FALSE;
+
+string_literal:
+    STRING_LITERAL;
 
 /*
  * TOKENS

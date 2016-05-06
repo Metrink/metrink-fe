@@ -10,7 +10,7 @@ connector:
     PIPE | COPY_PIPE | AMP;
 
 metric:
-    METRIC LPAREN (host=string_array|host=string_literal {localctx.host = [localctx.host] }) COMMA (group=string_array|group=string_literal {localctx.group = [localctx.group] }) COMMA (name=string_array|name=string_literal {localctx.name = [localctx.name] }) (COMMA (prev_time=relative_time_literal|prev_time=relative_time_array))? RPAREN;
+    METRIC LPAREN (string_array|string_literal) COMMA (string_array|string_literal) COMMA (string_array|string_literal) (COMMA (relative_time_literal|relative_time_array))? RPAREN;
 
 string_array:
     LBRACKET string_literal (COMMA string_literal)* RBRACKET;
@@ -40,7 +40,7 @@ relative_time_array:
     LBRACKET relative_time_literal (COMMA relative_time_literal)* RBRACKET;
 
 relative_time_literal:
-    MINUS? INTEGER_LITERAL TIME_INDICATOR;
+    INTEGER_LITERAL TIME_INDICATOR;
 
 absolute_date_literal:
     INTEGER_LITERAL MINUS INTEGER_LITERAL MINUS INTEGER_LITERAL absolute_time_literal;
@@ -49,7 +49,7 @@ absolute_time_literal:
     INTEGER_LITERAL COLON INTEGER_LITERAL (PM_INDICATOR|AM_INDICATOR)?;
 
 percent_literal:
-    MINUS? INTEGER_LITERAL REM;
+    INTEGER_LITERAL REM;
 
 boolean_literal:
     TRUE | FALSE;
@@ -106,7 +106,7 @@ COLON:
     ':';
 
 TIME_INDICATOR:
-    [shmd];
+    [smhd];
 
 PM_INDICATOR:
     [pP][mM];
@@ -124,10 +124,10 @@ IDENTIFIER:
     [a-zA-Z][a-zA-Z0-9]*;
 
 INTEGER_LITERAL:
-    [0-9]+;
+    '-'?[0-9]+;
 
 FLOATING_POINT_LITERAL:
-    ([0-9]+'.'[0-9]*)|('.'[0-9]+);
+    '-'?(([0-9]+'.'[0-9]*)|('.'[0-9]+));
 
 STRING_LITERAL:
    QUOTE SCharSequence? QUOTE;

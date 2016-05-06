@@ -1,17 +1,9 @@
 from antlr4 import *
 from antlr4.error.ErrorListener import ErrorListener
 
-from gen.metrinkLexer import metrinkLexer
-from gen.metrinkListener import metrinkListener
-from gen.metrinkParser import metrinkParser
-
-import sys
-
-
-class MetrinkPrintListener(metrinkListener):
-    def enterGraph_query(self, ctx:metrinkParser.Graph_queryContext):
-        print("%s" % ctx.absolute_date_literal())
-        print("%s" % ctx.relative_time_literal())
+from parser.MetrinkLexer import MetrinkLexer
+from parser.MetrinkParser import MetrinkParser
+from QueryBuilderVisitor import QueryBuilderVisitor
 
 
 class MyErrorListener(ErrorListener):
@@ -34,7 +26,7 @@ if __name__ == '__main__':
                 continue
 
             istream = InputStream(l)
-            lexer = metrinkLexer(istream)
+            lexer = MetrinkLexer(istream)
             stream = CommonTokenStream(lexer)
 
             # print out the token parsing
@@ -43,9 +35,9 @@ if __name__ == '__main__':
 
             for token in stream.tokens:
                 if token.text != '<EOF>':
-                    print("%s: %s" % (token.text, metrinkLexer.symbolicNames[token.type-1]))
+                    print("%s: %s" % (token.text, MetrinkLexer.symbolicNames[token.type-1]))
 
-            parser = metrinkParser(stream)
+            parser = MetrinkParser(stream)
 
             parser.removeErrorListeners()
             parser.addErrorListener(MyErrorListener(l))
@@ -56,8 +48,7 @@ if __name__ == '__main__':
             if tree is not None:
                 print('WORKED: ' + l)
 
-            visitor = metrinkVisitor()
-
+            visitor = QueryBuilderVisitor()
             visitor.visit(tree)
 
             # printer = MetrinkPrintListener()

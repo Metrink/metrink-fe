@@ -2,6 +2,9 @@ from datetime import datetime
 
 
 class QueryFunction:
+    def __init__(self, name, args):
+        self._name = name
+        self._args = args
 
     def process(self, start_time:datetime, end_time:datetime):
         """

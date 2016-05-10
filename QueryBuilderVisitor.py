@@ -1,5 +1,7 @@
 from parser.MetrinkVisitor import MetrinkVisitor
 from parser.MetrinkParser import MetrinkParser
+
+from functions import QUERY_FUNCTIONS
 from functions.MathFunction import MathFunction
 from functions.MetricFunction import MetricFunction
 
@@ -61,7 +63,18 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
     # Visit a parse tree produced by MetrinkParser#function.
     def visitFunction(self, ctx: MetrinkParser.FunctionContext):
-        return ctx.getText()
+        name = self.visit(ctx.children[0])
+
+        if name not in QUERY_FUNCTIONS.keys():
+            raise ValueError("Unknown function: " + str(name))
+
+        # check for arguments
+        if len(ctx.children) != 1:
+            args = self.visit(ctx.children[1])[1:-1]
+        else:
+            args = ()
+
+        return QUERY_FUNCTIONS[name](name, args)
 
 
     # Visit a parse tree produced by MetrinkParser#argument_list.
@@ -102,16 +115,10 @@ class QueryBuilderVisitor(MetrinkVisitor):
         op = self.visit(ctx.children[1])
         right_child = self.visit(ctx.children[2])
 
-        if op == '+':
-            return MathFunction(MathFunction.ADD, left_child, right_child)
-        elif op == '-':
-            return MathFunction(MathFunction.SUB, left_child, right_child)
-        elif op == '*':
-            return MathFunction(MathFunction.MUL, left_child, right_child)
-        elif op == '/':
-            return MathFunction(MathFunction.DIV, left_child, right_child)
-        else:
-            raise ValueError("Unknown math fucntion: " + str(op))
+        if op not in ('+', '-', '*', '/'):
+            raise ValueError("Unknown operator: " + op)
+
+        return MathFunction(op, (left_child, right_child))
 
     # Visit a parse tree produced by MetrinkParser#number_literal.
     def visitNumber_literal(self, ctx: MetrinkParser.Number_literalContext):

@@ -1,17 +1,29 @@
+from datetime import datetime
 from functions.QueryFunction import QueryFunction
 
 
 class MathFunction(QueryFunction):
-    ADD = 0
-    SUB = 1
-    MUL = 2
-    DIV = 3
+    def __init__(self, name, args):
+        super().__init__(name, args)
 
-    def __init__(self, op:int, left, right):
-        if op < 0 or op > self.DIV:
-            raise ValueError('Invalid operator')
+        if len(args) < 2:
+            raise ValueError("Must have at least 2 args for math functions: " + str(args))
 
-        self.op = op
-        self.left = left
-        self.right = right
+    def process(self, start_time: datetime, end_time: datetime):
+        """
+        Processes the function and computes the result
+        :param start_time: the starting time to look at for processing
+        :param end_time: the ending time to look at for processing
+        :return: the result of processing this function
+        """
+        pass
 
+
+class SumFunction(MathFunction):
+    def __init__(self, name, args):
+        super().__init__('+', args)
+
+
+class MultiplyFunction(MathFunction):
+    def __init__(self, name, args):
+        super().__init__('*', args)

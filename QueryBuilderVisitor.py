@@ -55,7 +55,7 @@ class QueryBuilderVisitor(MetrinkVisitor):
     def visitString_array(self, ctx: MetrinkParser.String_arrayContext):
         ret = []
 
-        for child in ctx.children:
+        for child in ctx.children[1:-1]:
             ret.append(self.visit(child))
 
         return ret
@@ -70,7 +70,7 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
         # check for arguments
         if len(ctx.children) != 1:
-            args = self.visit(ctx.children[1])[1:-1]
+            args = list(filter(lambda a: a != ',', self.visit(ctx.children[1])[1:-1]))
         else:
             args = ()
 

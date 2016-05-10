@@ -12,5 +12,5 @@ QUERY_FUNCTIONS = {
     'graph': GraphFunction,
     'mavg': MovingAverageFunction,
     'mul': MultiplyFunction,
-    'sum': MathFunction,
+    'sum': SumFunction,
 }

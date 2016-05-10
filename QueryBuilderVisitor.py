@@ -1,6 +1,7 @@
 from parser.MetrinkVisitor import MetrinkVisitor
 from parser.MetrinkParser import MetrinkParser
-from functions import MathFunction
+from functions.MathFunction import MathFunction
+from functions.MetricFunction import MetricFunction
 
 from dateutil import parser
 import datetime
@@ -97,7 +98,13 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
     def _handle_math_function(self, ctx):
         left_child = self.visit(ctx.children[0])
-        op = visit(ctx.children[1])
+
+        # if we only have 1 child, keep going
+        if len(ctx.children) == 1:
+            return left_child
+
+
+        op = self.visit(ctx.children[1])
         right_child = self.visit(ctx.children[2])
 
         if op == '+':
@@ -109,8 +116,7 @@ class QueryBuilderVisitor(MetrinkVisitor):
         elif op == '/':
             return MathFunction(MathFunction.DIV, left_child, right_child)
         else:
-            raise ValueError("Unknown math fucntion: " + op)
-
+            raise ValueError("Unknown math fucntion: " + str(op))
 
     # Visit a parse tree produced by MetrinkParser#number_literal.
     def visitNumber_literal(self, ctx: MetrinkParser.Number_literalContext):
@@ -193,3 +199,6 @@ class QueryBuilderVisitor(MetrinkVisitor):
         str_lit = ctx.getText()[1:-1] # chop off the quotes
 
         return str_lit
+
+    def visitTerminal(self, node):
+        return str(node)

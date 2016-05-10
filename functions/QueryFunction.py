@@ -6,6 +6,9 @@ class QueryFunction:
         self._name = name
         self._args = args
 
+    def __str__(self):
+        return self._name + str(self._args)
+
     def process(self, start_time:datetime, end_time:datetime):
         """
         Processes the function and computes the result

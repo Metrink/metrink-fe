@@ -1,3 +1,5 @@
+-1d metric('blah', 'blah', 'blah') m('1', '1', '1')
+
 -1d metric('blah', 'blah', 'blah')
 5:30pm metric("blah", "blah", "blah")
 5:30pm to 6:30pm metric('*', 'b', 'b') | avg | graph

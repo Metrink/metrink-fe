@@ -18,12 +18,45 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
     # Visit a parse tree produced by MetrinkParser#graph_expression.
     def visitGraph_expression(self, ctx: MetrinkParser.Graph_expressionContext):
-        return self.visitChildren(ctx)
+        children = []
 
+        # visit all the children, and flatten everything out
+        # metrics can be arrays, but += appends everything on
+        for child in ctx.children:
+            r = self.visit(child)
+            if isinstance(r, list):
+                children.extend(r)
+            else:
+                children.append(r)
+
+        c_len = len(children)
+        ret = []
+
+        i = 0
+        while i < c_len:
+            child = children[i]
+            ret.append(child)
+
+            if i < c_len-1:
+                next_child = children[i+1]
+
+                # add in the implicit copy connector if it's not there
+                if not isinstance(next_child, str):
+                    ret.append('>|')
+                else:
+                    ret.append(next_child)
+                    i += 1
+
+            i += 1
+
+        for child in ret:
+            print('CHILD: ' + str(child))
+
+        return ret
 
     # Visit a parse tree produced by MetrinkParser#connector.
     def visitConnector(self, ctx: MetrinkParser.ConnectorContext):
-        return self.visitChildren(ctx)
+        return self.visitChildren(ctx) # this just grabs the character
 
 
     # Visit a parse tree produced by MetrinkParser#metric.

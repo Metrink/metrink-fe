@@ -1,7 +1,7 @@
 grammar Metrink;
 
 graph_query:
-    (start_time = relative_time_literal | start_time = absolute_date_literal | start_time = absolute_time_literal) ('to' (end_time = absolute_date_literal | end_time = absolute_time_literal) )? graph_expression;
+    (relative_time_literal | absolute_date_literal | absolute_time_literal) ('to' (end_time = absolute_date_literal | end_time = absolute_time_literal) )? graph_expression;
 
 graph_expression:
     (additive_expression)+ (connector function)*;

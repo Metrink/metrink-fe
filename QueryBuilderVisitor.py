@@ -64,11 +64,6 @@ class QueryBuilderVisitor(MetrinkVisitor):
         return ctx.getText()
 
 
-    # Visit a parse tree produced by MetrinkParser#function_name.
-    def visitFunction_name(self, ctx: MetrinkParser.Function_nameContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by MetrinkParser#argument_list.
     def visitArgument_list(self, ctx: MetrinkParser.Argument_listContext):
         ret = []

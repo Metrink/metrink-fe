@@ -16,10 +16,7 @@ string_array:
     LBRACKET string_literal (COMMA string_literal)* RBRACKET;
 
 function:
-    function_name ( argument_list )?;
-
-function_name:
-    IDENTIFIER;
+    IDENTIFIER ( argument_list )?;
 
 argument_list:
     LPAREN argument (COMMA argument)* RPAREN;

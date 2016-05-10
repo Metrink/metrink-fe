@@ -26,4 +26,4 @@
 -1h m('*', 'b', 'b') + m('*', 'b', 'b') - m('*', 'b', 'b') * m('*', 'b', 'b') / m('*', 'b', 'b') | avg | graph
 -1h abs( m('*', 'b', 'b') + m('*', 'b', 'b') )| avg | sum('blah', 23, 15.3) | graph
 -1h abs( m('*', 'b', 'b') + m('*', 'b', 'b') ) + abs(m('*', 'b', 'b') * m('*', 'b', 'b') )| avg('blah') | graph 
--1h m('*', 'b', 'b') | sum( abs(2) + 3 - sum)
+-1h m('*', 'b', 'b') | sum(abs(2) + 3, 7)

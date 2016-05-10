@@ -145,12 +145,6 @@ class QueryBuilderVisitor(MetrinkVisitor):
     # Visit a parse tree produced by MetrinkParser#relative_time_literal.
     def visitRelative_time_literal(self, ctx: MetrinkParser.Relative_time_literalContext):
         num = int(ctx.children[0].getText())
-
-        if num > 0:
-            raise ValueError("Relative times must be negative")
-
-        num *= -1
-
         # convert everything into seconds
         if ctx.children[1].getText() == 's':
             delta = datetime.timedelta(seconds=num)
@@ -161,7 +155,7 @@ class QueryBuilderVisitor(MetrinkVisitor):
         elif ctx.children[1].getText() == 'd':
             delta = datetime.timedelta(days=num)
 
-        return datetime.datetime.now() - delta
+        return delta
 
 
     # Visit a parse tree produced by MetrinkParser#absolute_date_literal.

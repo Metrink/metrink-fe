@@ -8,12 +8,26 @@ from functions.MetricFunction import MetricFunction
 from dateutil import parser
 import datetime
 
+
 class QueryBuilderVisitor(MetrinkVisitor):
     # Visit a parse tree produced by MetrinkParser#graph_query.
     def visitGraph_query(self, ctx: MetrinkParser.Graph_queryContext):
-        ret = self.visitChildren(ctx)
+        start_time = self.visit(ctx.children[0])
+        end_time = datetime.datetime.now()
 
-        return ret
+        # convert relative to absolute
+        if isinstance(start_time, datetime.timedelta):
+            start_time = datetime.datetime.now() + start_time
+
+        # check for an end date/time
+        if len(ctx.children) == 4:
+            end_time = self.visit(ctx.children[2]) # skip the 'to' token
+
+            graph_expression = self.visit(ctx.children[3])
+        else:
+            graph_expression = self.visit(ctx.children[1])
+
+        return (start_time, end_time, graph_expression)
 
 
     # Visit a parse tree produced by MetrinkParser#graph_expression.

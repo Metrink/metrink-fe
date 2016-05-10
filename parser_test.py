@@ -13,6 +13,7 @@ class MyErrorListener(ErrorListener):
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
         print("FAILED: %s" % self.input)
         print("%d:%d %s" % (line, column, msg))
+        raise ValueError('PARSE FAILED')
 
     def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
         print(str(startIndex) + " to " + str(stopIndex))
@@ -48,7 +49,11 @@ if __name__ == '__main__':
                 print('PARSED: ' + l)
 
             visitor = QueryBuilderVisitor()
-            visitor.visit(tree)
+            (start, end, expression) = visitor.visit(tree)
+
+            print('START: ' + str(start))
+            print('  END: ' + str(end))
+            print('QUERY: ' + ' '.join(map(lambda a: str(a), expression)))
 
             # printer = MetrinkPrintListener()
             # walker = ParseTreeWalker()

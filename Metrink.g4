@@ -1,7 +1,7 @@
 grammar Metrink;
 
 graph_query:
-    (relative_time_literal | absolute_date_literal | absolute_time_literal) ('to' (absolute_date_literal | absolute_time_literal) )? graph_expression;
+    (relative_time_literal | absolute_date_time_literal | absolute_time_literal) ('to' (absolute_date_time_literal | absolute_time_literal) )? graph_expression;
 
 graph_expression:
     (additive_expression)+ (connector function)*;
@@ -31,22 +31,28 @@ multiplicative_expression:
     (number_literal|metric|function) ( (MUL|DIV) multiplicative_expression )?;
 
 number_literal:
-    INTEGER_LITERAL | FLOATING_POINT_LITERAL;
+    integer_literal | FLOATING_POINT_LITERAL;
 
 relative_time_array:
     LBRACKET relative_time_literal (COMMA relative_time_literal)* RBRACKET;
 
 relative_time_literal:
-    INTEGER_LITERAL TIME_INDICATOR;
+    integer_literal TIME_INDICATOR;
+
+absolute_date_time_literal:
+    absolute_date_literal absolute_time_literal;
 
 absolute_date_literal:
-    POSITIVE_INTEGER_LITERAL MINUS POSITIVE_INTEGER_LITERAL MINUS POSITIVE_INTEGER_LITERAL absolute_time_literal;
+    POSITIVE_INTEGER_LITERAL MINUS POSITIVE_INTEGER_LITERAL MINUS POSITIVE_INTEGER_LITERAL;
 
 absolute_time_literal:
     POSITIVE_INTEGER_LITERAL COLON POSITIVE_INTEGER_LITERAL (PM_INDICATOR|AM_INDICATOR)?;
 
+integer_literal:
+    MINUS? POSITIVE_INTEGER_LITERAL;
+
 percent_literal:
-    INTEGER_LITERAL REM;
+    integer_literal REM;
 
 boolean_literal:
     TRUE | FALSE;
@@ -122,9 +128,6 @@ IDENTIFIER:
 
 POSITIVE_INTEGER_LITERAL:
     [0-9]+;
-
-INTEGER_LITERAL:
-    '-'?POSITIVE_INTEGER_LITERAL;
 
 FLOATING_POINT_LITERAL:
     '-'?(([0-9]+'.'[0-9]*)|('.'[0-9]+));

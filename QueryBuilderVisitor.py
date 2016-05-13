@@ -209,6 +209,7 @@ class QueryBuilderVisitor(MetrinkVisitor):
     def visitAbsolute_date_literal(self, ctx: MetrinkParser.Absolute_date_literalContext):
         self.visitChildren(ctx)
 
+        print("PARSING: " + ctx.getText())
         return parser.parse(ctx.getText())
 
 

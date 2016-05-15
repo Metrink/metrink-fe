@@ -31,11 +31,11 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
 
     # Visit a parse tree produced by MetrinkParser#graph_expression.
+    # returns a list of function, connector, function, connector, etc...
     def visitGraph_expression(self, ctx: MetrinkParser.Graph_expressionContext):
         children = []
 
         # visit all the children, and flatten everything out
-        # metrics can be arrays, but += appends everything on
         for child in ctx.children:
             r = self.visit(child)
             if isinstance(r, list):
@@ -62,9 +62,6 @@ class QueryBuilderVisitor(MetrinkVisitor):
                     i += 1
 
             i += 1
-
-        for child in ret:
-            print('CHILD: ' + str(child))
 
         return ret
 

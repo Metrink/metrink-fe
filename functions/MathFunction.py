@@ -1,4 +1,5 @@
 from datetime import datetime
+from pandas import DataFrame
 from functions.QueryFunction import QueryFunction
 
 
@@ -9,7 +10,7 @@ class MathFunction(QueryFunction):
         if len(args) < 2:
             raise ValueError("Must have at least 2 args for math functions: " + str(args))
 
-    def process(self, start_time: datetime, end_time: datetime):
+    def process(self, start_time: datetime, end_time: datetime, input:DataFrame):
         """
         Processes the function and computes the result
         :param start_time: the starting time to look at for processing

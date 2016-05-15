@@ -1,9 +1,12 @@
 from antlr4 import *
 from antlr4.error.ErrorListener import ErrorListener
+from pandas import DataFrame
+from sys import stdin
 
 from parser.MetrinkLexer import MetrinkLexer
 from parser.MetrinkParser import MetrinkParser
 from QueryBuilderVisitor import QueryBuilderVisitor
+from functions.QueryFunction import QueryFunction
 
 
 class MyErrorListener(ErrorListener):
@@ -34,9 +37,9 @@ if __name__ == '__main__':
             stream.fill()
             print('INPUT: ' + l)
 
-            for token in stream.tokens:
-                if token.text != '<EOF>':
-                    print("%s: %s" % (token.text, MetrinkLexer.symbolicNames[token.type-1]))
+            # for token in stream.tokens:
+            #     if token.text != '<EOF>':
+            #         print("%s: %s" % (token.text, MetrinkLexer.symbolicNames[token.type-1]))
 
             parser = MetrinkParser(stream)
 
@@ -45,9 +48,6 @@ if __name__ == '__main__':
 
             tree = parser.graph_query()
 
-            if tree is not None:
-                print('PARSED: ' + l)
-
             visitor = QueryBuilderVisitor()
             (start, end, expression) = visitor.visit(tree)
 
@@ -55,8 +55,26 @@ if __name__ == '__main__':
             print('  END: ' + str(end))
             print('QUERY: ' + ' '.join(map(lambda a: str(a), expression)))
 
-            # printer = MetrinkPrintListener()
-            # walker = ParseTreeWalker()
-            # walker.walk(printer, tree)
+            # run the first function and get the DataFrame
+            last_frame = expression[0].process(start, end, DataFrame())
 
+            for i in range(1, len(expression), 2):
+                conn = expression[i]
+                fun = expression[i+1]
+
+                if not isinstance(fun, QueryFunction):
+                    raise ValueError('NON-QUERY FUNCTION: ' + str(fun))
+
+                print('RUNNING: ' + str(fun))
+
+                cur_frame = fun.process(start, end, last_frame)
+
+                if conn == '>|': # combine the two
+                    last_frame = last_frame.combine_first(cur_frame)
+                else:
+                    last_frame = cur_frame
+
+                i += 2
+
+            print("RES:\n" + str(last_frame.head()))
 

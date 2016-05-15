@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from pandas import DataFrame
 
 class QueryFunction:
     def __init__(self, name, args):
@@ -9,7 +9,7 @@ class QueryFunction:
     def __str__(self):
         return self._name + str(self._args)
 
-    def process(self, start_time:datetime, end_time:datetime):
+    def process(self, start_time:datetime, end_time:datetime, input:DataFrame):
         """
         Processes the function and computes the result
         :param start_time: the starting time to look at for processing

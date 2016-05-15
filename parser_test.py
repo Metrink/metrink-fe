@@ -1,7 +1,8 @@
 from antlr4 import *
 from antlr4.error.ErrorListener import ErrorListener
 from pandas import DataFrame
-from sys import stdin
+
+from pandas_highcharts.core import serialize
 
 from parser.MetrinkLexer import MetrinkLexer
 from parser.MetrinkParser import MetrinkParser
@@ -82,3 +83,6 @@ if __name__ == '__main__':
             print("...")
             print(str(last_frame.tail()))
 
+            chart = serialize(last_frame, render_to='my-chart', output_type='json')
+
+            print(chart)

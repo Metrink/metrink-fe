@@ -35,6 +35,7 @@ if __name__ == '__main__':
 
             # print out the token parsing
             stream.fill()
+            print()
             print('INPUT: ' + l)
 
             # for token in stream.tokens:
@@ -76,5 +77,8 @@ if __name__ == '__main__':
 
                 i += 2
 
-            print("RES:\n" + str(last_frame.head()))
+            print("RES:")
+            print(str(last_frame.head()))
+            print("...")
+            print(str(last_frame.tail()))
 

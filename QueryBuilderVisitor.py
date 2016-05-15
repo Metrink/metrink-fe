@@ -19,13 +19,22 @@ class QueryBuilderVisitor(MetrinkVisitor):
         if isinstance(start_time, datetime.timedelta):
             start_time = datetime.datetime.now() + start_time
 
+            if start_time > datetime.datetime.now():
+                start_time += datetime.timedelta(days=1)
+
         # check for an end date/time
         if len(ctx.children) == 4:
             end_time = self.visit(ctx.children[2]) # skip the 'to' token
 
+            if end_time > datetime.datetime.now():
+                end_time += datetime.timedelta(days=1)
+
             graph_expression = self.visit(ctx.children[3])
         else:
             graph_expression = self.visit(ctx.children[1])
+
+        if start_time > end_time:
+            raise ValueError('Start time must be before end time: ' + str(start_time) + ' > ' + str(end_time))
 
         return (start_time, end_time, graph_expression)
 

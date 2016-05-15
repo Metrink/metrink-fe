@@ -17,7 +17,7 @@ class MathFunction(QueryFunction):
         :param end_time: the ending time to look at for processing
         :return: the result of processing this function
         """
-        pass
+        return input
 
 
 class SumFunction(MathFunction):

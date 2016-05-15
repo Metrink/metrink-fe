@@ -13,4 +13,4 @@ class AbsoluteValueFunction(QueryFunction):
             return input.abs()
         else:
             # process the input
-            return self._args[0].process(start_time, end_time, input).abs()
+            return self._args[0].process(start_time, end_time, input).abs() if isinstance(self._args[0], QueryFunction) else abs(self._args[0])

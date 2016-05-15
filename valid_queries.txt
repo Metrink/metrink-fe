@@ -21,11 +21,11 @@
 -1h abs( m('*', 'b', 'b') + m('*', 'b', 'b') ) + mul(m('*', 'b', 'b'),  m('*', 'b', 'b') )
 
 -1h m('*', 'b', 'b') | avg | graph
--1h m('*', 'b', 'b') | avg | sum('blah', 23, 14) | graph
+-1h m('*', 'b', 'b') | avg | sum(m('a','b','c'), 23, 14) | graph
 -1h m('*', 'b', 'b') m('*', 'b', 'b') | avg | graph
 -1h m('*', 'b', 'b') | mavg(1h)
 
 -1h m('*', 'b', 'b') + m('*', 'b', 'b') - m('*', 'b', 'b') * m('*', 'b', 'b') / m('*', 'b', 'b') | avg | graph
--1h abs( m('*', 'b', 'b') + m('*', 'b', 'b') )| avg | sum('blah', 23, 15.3) | graph
+-1h abs( m('*', 'b', 'b') + m('*', 'b', 'b') )| avg | sum(m('a','b','c')+7, 23, 15.3) | graph
 -1h abs( m('*', 'b', 'b') + m('*', 'b', 'b') ) + abs(m('*', 'b', 'b') * m('*', 'b', 'b') )| avg | graph 
--1h m('*', 'b', 'b') | sum(abs(2) + 3, 7)
+-1h m('*', 'b', 'b') | sum(abs(2) + m('a','b','c'), 7)

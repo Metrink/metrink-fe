@@ -125,7 +125,15 @@ class QueryBuilderVisitor(MetrinkVisitor):
         if len(ctx.children) != 1:
             args = list(filter(lambda a: a != ',', self.visit(ctx.children[1])[1:-1]))
         else:
-            args = ()
+            args = []
+
+        # need to make sure we only have single arguments for functions
+        for i in range(0, len(args)):
+            if isinstance(args[i], list):
+                if len(args[i]) > 1:
+                    raise ValueError("Array arguments not supported")
+                else:
+                    args[i] = args[i][0]
 
         return QUERY_FUNCTIONS[name](name, args)
 
@@ -164,12 +172,21 @@ class QueryBuilderVisitor(MetrinkVisitor):
         if len(ctx.children) == 1:
             return left_child
 
-
         op = self.visit(ctx.children[1])
         right_child = self.visit(ctx.children[2])
 
         if op not in ('+', '-', '*', '/'):
             raise ValueError("Unknown operator: " + op)
+
+        if (isinstance(left_child, list) and len(left_child) > 1) or\
+           (isinstance(right_child, list) and len(right_child) > 1):
+            raise ValueError("Invalid arguments to " + str(op))
+
+        left_child = left_child[0] if isinstance(left_child, list) else left_child
+        right_child = right_child[0] if isinstance(right_child, list) else right_child
+
+        if isinstance(left_child, list) or isinstance(right_child, list):
+            print("HERE")
 
         return MathFunction(op, (left_child, right_child))
 

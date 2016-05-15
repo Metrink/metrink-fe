@@ -11,13 +11,30 @@ class MathFunction(QueryFunction):
             raise ValueError("Must have at least 2 args for math functions: " + str(args))
 
     def process(self, start_time: datetime, end_time: datetime, input:DataFrame):
-        """
-        Processes the function and computes the result
-        :param start_time: the starting time to look at for processing
-        :param end_time: the ending time to look at for processing
-        :return: the result of processing this function
-        """
-        return input
+        if len(self._args) == 1:
+            left = input
+            i = 0
+        else:
+            left = self._args[0].process(start_time, end_time, input) if isinstance(self._args[0], QueryFunction) else self._args[0]
+            i = 1
+
+        while i < len(self._args):
+            right = self._args[i].process(start_time, end_time, input) if isinstance(self._args[i], QueryFunction) else self._args[i]
+
+            if self._name == '+':
+                left = left + right
+            elif self._name == '-':
+                left = left - right
+            elif self._name == '*':
+                left = left * right
+            elif self._name == '/':
+                left = left / right
+            else:
+                raise ValueError("Unknown math function: " + str(self._name))
+
+            i += 1
+
+        return left
 
 
 class SumFunction(MathFunction):

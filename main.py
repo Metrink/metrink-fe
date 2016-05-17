@@ -1,43 +1,45 @@
-"""`main` is the top level module for your Flask application."""
+from logger import logger
+from flask import Flask, render_template, send_from_directory, session, redirect, request
 
-import logger
-
-
-from flask import Flask
+from graph import generate_graph
 
 app = Flask(__name__)
-app.secret_key = 'VeihrjKFjqxJ78bEc0fJ' # change for production use
+app.secret_key = '9CwkXojJdwUMk0Fn6CfN'
+
+
+# def public_route(function):
+#     function.is_public = True
+#     return function
+
+
+def render(template, title, **kwargs):
+    return render_template(template, page_title=title, **kwargs)
+
+
+# @app.route('/favicon.ico')
+# def favicon():
+#     return send_from_directory(os.path.join(app.root_path, 'static'), 'img/favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @app.route('/')
 def root():
-    return 'hello world'
+    return redirect('/graph')
 
 
-#
-# Error handlers
-#
-@app.errorhandler(404)
-def page_not_found(e):
-    """Return a custom 404 error."""
-    return 'Sorry, Nothing at this URL.', 404
+@app.route('/graph', methods=['GET'])
+def graph():
+    query = request.args.get('q', None)
 
+    if query is not None:
+        logger.debug('QUERY: ' + query)
 
-@app.errorhandler(500)
-def page_not_found(e):
-    """Return a custom 500 error."""
-    return 'Sorry, unexpected error: {}'.format(e), 500
+        chart = generate_graph(query)
+    else:
+        chart = "{}"
 
+    return render('graph.html', 'Graph', chart=chart, q=query)
 
-#
-# Special request routers for images
-#
-@app.route('/<any(css, img, font):folder>/<path:filename>')
-def toplevel_static(folder, filename):
-    filename = safe_join(folder, filename)
-    cache_timeout = app.get_send_file_max_age(filename)
-
-    return send_from_directory(app.static_folder, filename, cache_timeout=cache_timeout)
 
 if __name__ == '__main__':
     app.run(debug=True)
+

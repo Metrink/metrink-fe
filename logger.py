@@ -7,22 +7,22 @@ logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler(sys.stderr)
 sh.setLevel(logging.DEBUG)
 
-sh.setFormatter(logging.Formatter('[%(levelname)s] %(asctime)s: %(message)s'))
+sh.setFormatter(logging.Formatter('[%(asctime)s %(levelname)s] %(filename)s %(lineno)s:\t%(message)s'))
 
 logger.addHandler(sh)
 
-
-def error(msg, *args, **kwargs):
-    logger.error(msg, *args, **kwargs)
-
-
-def warn(msg, *args, **kwargs):
-    logger.warn(msg, *args, **kwargs)
-
-
-def info(msg, *args, **kwargs):
-    logger.info(msg, *args, **kwargs)
-
-
-def debug(msg, *args, **kwargs):
-    logger.debug(msg, *args, **kwargs)
+#
+# def error(msg, *args, **kwargs):
+#     logger.error(msg, *args, **kwargs)
+#
+#
+# def warn(msg, *args, **kwargs):
+#     logger.warn(msg, *args, **kwargs)
+#
+#
+# def info(msg, *args, **kwargs):
+#     logger.info(msg, *args, **kwargs)
+#
+#
+# def debug(msg, *args, **kwargs):
+#     logger.debug(msg, *args, **kwargs)

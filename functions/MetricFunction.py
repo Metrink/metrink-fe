@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
+from flask import g
 from pandas import DataFrame
-from functions.QueryFunction import QueryFunction
-
 from random import randint
+from sqlalchemy.sql import select
+
+from functions.QueryFunction import QueryFunction
 
 
 class MetricFunction(QueryFunction):
@@ -17,6 +19,7 @@ class MetricFunction(QueryFunction):
         index = []
         data = []
 
+        res = g.db.execute('select * from hosts')
 
 
         name = "%s:%s:%s" % (self.host, self.group, self.name)

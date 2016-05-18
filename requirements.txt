@@ -2,3 +2,5 @@ antlr4-python3-runtime
 python-dateutil
 pandas
 pandas-highcharts
+flask
+flask-sqlalchemy

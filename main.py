@@ -39,6 +39,10 @@ def graph():
 
     return render('graph.html', 'Graph', chart=chart, q=query)
 
+@app.route('/explore')
+def explore():
+
+    return render('explore.html', 'Explore')
 
 if __name__ == '__main__':
     app.run(debug=True)

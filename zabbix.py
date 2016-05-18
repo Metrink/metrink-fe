@@ -62,5 +62,5 @@ def get_hosts():
 
     return ret
 
-for h in get_hosts_in_group('Tier-[2|3] Templates'):
-    print(h['group'])
+# for h in get_hosts_in_group('Tier-[2|3] Templates'):
+#     print(h['group'])

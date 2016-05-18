@@ -7,23 +7,11 @@ import logging
 
 from functions.QueryFunction import QueryFunction
 from logger import logger
+import os, sys
 
-# this seems like a terrible and inefficient way to go about things
-# setup the engine per http://flask.pocoo.org/docs/0.10/patterns/sqlalchemy/#sql-abstraction-layer
-engine = create_engine('mysql+mysqldb://root:root@localhost/zabbix', echo=True)
-metadata = MetaData(bind=engine)
+# sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-# load up the tables we care about
-# need to make this more configurable
-hosts = Table('hosts', metadata, autoload=True)
-history = Table('history', metadata, autoload=True)
-items = Table('items', metadata, autoload=True)
-groups = Table('groups', metadata, autoload=True)
-hosts_groups = Table('hosts_groups', metadata, autoload=True)
-
-print('IN HERE')
-
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+from zabbix import engine, hosts_table, items_table, history_table
 
 
 class MetricFunction(QueryFunction):
@@ -39,7 +27,7 @@ class MetricFunction(QueryFunction):
         data = []
 
         # get the host id
-        res = hosts.select(hosts.c.host == self.host).execute().first()
+        res = hosts_table.select(hosts_table.c.host == self.host).execute().first()
 
         if res is None:
             logger.warn('Unknown host: ' + str(self.host))
@@ -47,7 +35,7 @@ class MetricFunction(QueryFunction):
 
         host_id = res[0]
 
-        res = items.select(and_(items.c.name == self.name, items.c.hostid == host_id)).execute().first()
+        res = items_table.select(and_(items_table.c.name == self.name, items_table.c.hostid == host_id)).execute().first()
 
         if res is None:
             logger.warn('Unknown item/metric: ' + str(self.name))
@@ -57,7 +45,7 @@ class MetricFunction(QueryFunction):
 
         print('HOSTID: %d ITEMID: %d' % (host_id, item_id))
 
-        ret = read_sql(select([history.c.clock, history.c.value]).where(history.c.itemid == item_id), engine, parse_dates=('clock', ), index_col='clock')
+        ret = read_sql(select([history_table.c.clock, history_table.c.value]).where(history_table.c.itemid == item_id), engine, parse_dates=('clock', ), index_col='clock')
 
         # rename to the metric
         metric_name = "%s:%s:%s" % (self.host, self.group, self.name)

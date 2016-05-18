@@ -1,10 +1,29 @@
 from datetime import datetime, timedelta
-from flask import g
-from pandas import DataFrame
+from pandas import DataFrame, read_sql
 from random import randint
+from sqlalchemy import create_engine, MetaData, Table, and_
 from sqlalchemy.sql import select
+import logging
 
 from functions.QueryFunction import QueryFunction
+from logger import logger
+
+# this seems like a terrible and inefficient way to go about things
+# setup the engine per http://flask.pocoo.org/docs/0.10/patterns/sqlalchemy/#sql-abstraction-layer
+engine = create_engine('mysql+mysqldb://root:root@localhost/zabbix', echo=True)
+metadata = MetaData(bind=engine)
+
+# load up the tables we care about
+# need to make this more configurable
+hosts = Table('hosts', metadata, autoload=True)
+history = Table('history', metadata, autoload=True)
+items = Table('items', metadata, autoload=True)
+groups = Table('groups', metadata, autoload=True)
+hosts_groups = Table('hosts_groups', metadata, autoload=True)
+
+print('IN HERE')
+
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 
 class MetricFunction(QueryFunction):
@@ -19,18 +38,46 @@ class MetricFunction(QueryFunction):
         index = []
         data = []
 
-        res = g.db.execute('select * from hosts')
+        # get the host id
+        res = hosts.select(hosts.c.host == self.host).execute().first()
+
+        if res is None:
+            logger.warn('Unknown host: ' + str(self.host))
+            return input
+
+        host_id = res[0]
+
+        res = items.select(and_(items.c.name == self.name, items.c.hostid == host_id)).execute().first()
+
+        if res is None:
+            logger.warn('Unknown item/metric: ' + str(self.name))
+            return input
+
+        item_id = res[0]
+
+        print('HOSTID: %d ITEMID: %d' % (host_id, item_id))
+
+        ret = read_sql(select([history.c.clock, history.c.value]).where(history.c.itemid == item_id), engine, parse_dates=('clock', ), index_col='clock')
+
+        # rename to the metric
+        metric_name = "%s:%s:%s" % (self.host, self.group, self.name)
+        ret.columns = [metric_name]
+
+        print(ret.head())
+        print(ret.tail())
 
 
-        name = "%s:%s:%s" % (self.host, self.group, self.name)
+        return ret
 
-        while cur_time < end_time:
-            data.append({name: randint(0, 10)})
-            index.append(cur_time)
-
-            cur_time += timedelta(minutes=10)
-
-        return DataFrame(data, index=index)
+        # metric_name = "%s:%s:%s" % (self.host, self.group, self.name)
+        #
+        # while cur_time < end_time:
+        #     data.append({metric_name: randint(0, 10)})
+        #     index.append(cur_time)
+        #
+        #     cur_time += timedelta(minutes=10)
+        #
+        # return DataFrame(data, index=index)
 
 
 #

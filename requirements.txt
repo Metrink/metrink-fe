@@ -3,4 +3,4 @@ python-dateutil
 pandas
 pandas-highcharts
 flask
-flask-sqlalchemy
+sqlalchemy

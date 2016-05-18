@@ -1,16 +1,11 @@
 from logger import logger
 from flask import Flask, render_template, g, redirect, request
-from flask_sqlalchemy import SQLAlchemy
 
 from graph import generate_graph
 
 app = Flask(__name__)
 app.secret_key = '9CwkXojJdwUMk0Fn6CfN'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://scott:tiger@localhost/mydatabase'
-app.config['SQLALCHEMY_POOL_SIZE'] = 10
-db = SQLAlchemy(app)
 
-g.db = db
 
 # def public_route(function):
 #     function.is_public = True

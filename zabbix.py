@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, MetaData, Table, and_
 from sqlalchemy.sql import select, join
+from cache import get_cache
 import logging
 import re
 
@@ -30,7 +31,12 @@ def get_hosts_in_group(group:str):
     :param group: a "regular expression" of a group name
     :return: list of dicts for the hosts that are in the group
     """
-    hosts = get_hosts()
+    cache = get_cache()
+
+    hosts = cache.get('hosts')
+
+    if hosts is None:
+        hosts = get_hosts()
 
     # build the pattern to search against
     pattern = re.compile(group.replace('*', '.*'))

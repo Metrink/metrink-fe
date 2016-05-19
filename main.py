@@ -56,6 +56,12 @@ def api_hosts():
 
     return dumps(hosts)
 
+@app.route('/api/groups')
+def api_groups():
+    groups = get_hosts(attr='group')
+
+    return dumps(groups)
+
 if __name__ == '__main__':
     app.run(debug=True)
 

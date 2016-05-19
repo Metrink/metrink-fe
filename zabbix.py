@@ -31,12 +31,7 @@ def get_hosts_in_group(group:str):
     :param group: a "regular expression" of a group name
     :return: list of dicts for the hosts that are in the group
     """
-    cache = get_cache()
-
-    hosts = cache.get('hosts')
-
-    if hosts is None:
-        hosts = get_hosts()
+    hosts = get_hosts()
 
     # build the pattern to search against
     pattern = re.compile(group.replace('*', '.*'))
@@ -44,11 +39,24 @@ def get_hosts_in_group(group:str):
     return filter(lambda h: re.match(pattern, h['group']), hosts)
 
 
-def get_hosts():
+def get_hosts(attr=None):
     """
     Gets a list of dictionaries of hosts with associated groups
+    :param attr return a unique list of only that attribute, None = full dictionary
     :return:
     """
+    cache = get_cache()
+
+    hosts = cache.get('hosts')
+
+    if hosts is not None:
+        # pull out an attribute if we're looking for one
+        # removes duplicates as well
+        if attr is not None:
+            hosts = list(set([h[attr] for h in hosts]))
+
+        return hosts
+
     # join in the tables
     j1 = join(hosts_table, hosts_groups_table, hosts_table.c.hostid == hosts_groups_table.c.hostid)
     j2 = join(j1, groups_table, hosts_groups_table.c.groupid == groups_table.c.groupid)
@@ -56,17 +64,24 @@ def get_hosts():
     # run the select to fetch in what we want
     res = engine.execute(select([hosts_table.c.hostid, hosts_table.c.host, groups_table.c.name, hosts_groups_table.c.groupid]).select_from(j2))
 
-    ret = []
+    hosts = []
 
     for row in res:
-        ret.append({
+        hosts.append({
             'hostid': row[0],
             'host': row[1],
             'group': row[2],
             'groupid': row[3]
         })
 
-    return ret
+    cache.set('hosts', hosts)
+
+    # pull out an attribute if we're looking for one
+    # removes duplicates as well
+    if attr is not None:
+        hosts = list(set([h[attr] for h in hosts]))
+
+    return hosts
 
 # for h in get_hosts_in_group('Tier-[2|3] Templates'):
 #     print(h['group'])

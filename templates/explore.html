@@ -9,7 +9,9 @@
                 <div class="form-group">
                     <label for="host" class="col-sm-3 control-label">Host</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="host" />
+                        <div id="prefetch">
+                            <input type="text" class="form-control typeahead" id="host" />
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -33,4 +35,25 @@
 {% endblock %}
 
 {% block js %}
+<script src="{{url_for('static', filename='js/typeahead.bundle.js')}}"></script>
+
+<script>
+    var hosts = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        prefetch: '/api/hosts'
+    });
+
+    $('#prefetch .typeahead').typeahead(
+        {
+            hint: true,
+            highlight: true,
+            minLength: 1
+        },
+        {
+            name: 'hosts',
+            source: hosts
+        }
+    );
+</script>
 {% endblock %}

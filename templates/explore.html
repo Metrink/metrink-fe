@@ -3,8 +3,8 @@
 {% block css %}
 <link href="{{url_for('static', filename='css/typeaheadjs.css')}}" rel="stylesheet"/>
 <style>
-#prefetch .tt-dropdown-menu {
-  max-height: 150px;
+.tt-dropdown-menu {
+  max-height: 50px;
   overflow-y: auto;
 }
 </style>
@@ -60,13 +60,13 @@
     var hosts = new Bloodhound({
         datumTokenizer: Bloodhound.tokenizers.whitespace,
         queryTokenizer: Bloodhound.tokenizers.whitespace,
-        prefetch: '/api/hosts'
+        prefetch: {url: '/api/hosts', cache: false}
     });
 
     var groups = new Bloodhound({
         datumTokenizer: Bloodhound.tokenizers.whitespace,
         queryTokenizer: Bloodhound.tokenizers.whitespace,
-        prefetch: '/api/groups'
+        prefetch: {url: '/api/groups', cache: false}
     });
 
     $('#hosts_typeahead .typeahead').typeahead(config, {name: 'hosts', limit: 25, source: hosts});

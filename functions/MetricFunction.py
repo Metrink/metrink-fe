@@ -81,6 +81,24 @@ class MetricFunction(QueryFunction):
 #       name - name of the metric
 #       hostid - the id of the host it relates to
 #       description - a description of the item
+#       type:
+#         0 - Zabbix agent;
+#         1 - SNMPv1 agent;
+#         2 - Zabbix trapper;
+#         3 - simple check;
+#         4 - SNMPv2 agent;
+#         5 - Zabbix internal;
+#         6 - SNMPv3 agent;
+#         7 - Zabbix agent(active);
+#         8 - Zabbix aggregate;
+#         9 - web item;
+#         10 - external check;
+#         11 - database monitor;
+#         12 - IPMI agent;
+#         13 - SSH agent;
+#         14 - TELNET agent;
+#         15 - calculated;
+#         16 - JMX agent.
 #
 #   hosts - stores the hosts on the system
 #       hostid - the unique ID of the hosts

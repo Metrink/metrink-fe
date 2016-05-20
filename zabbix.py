@@ -143,6 +143,5 @@ def get_items(attr=None):
 # for h in get_hosts_in_group('Tier-[2|3] Templates'):
 #     print(h['group'])
 
-get_items()
 # for i in get_items():
 #     print(i['name'])

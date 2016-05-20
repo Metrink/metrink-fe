@@ -36,7 +36,9 @@
                 <div class="form-group">
                     <label for="metric" class="col-sm-3 control-label">Metric</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="metric" />
+                        <div id="items_typeahead">
+                            <input type="text" class="form-control typeahead" id="metric" />
+                        </div>
                     </div>
                 </div>
             </form>
@@ -69,7 +71,14 @@
         prefetch: {url: '/api/groups', cache: false}
     });
 
+    var items = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        prefetch: {url: '/api/items', cache: false}
+    });
+
     $('#hosts_typeahead .typeahead').typeahead(config, {name: 'hosts', limit: 25, source: hosts});
     $('#groups_typeahead .typeahead').typeahead(config, {name: 'groups', limit: 25, source: groups});
+    $('#items_typeahead .typeahead').typeahead(config, {name: 'items', limit: 25, source: items});
 </script>
 {% endblock %}

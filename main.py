@@ -3,7 +3,7 @@ from flask import Flask, render_template, g, redirect, request
 from json import dumps
 
 from graph import generate_graph
-from zabbix import get_hosts
+from zabbix import get_hosts, get_items
 
 app = Flask(__name__)
 app.secret_key = '9CwkXojJdwUMk0Fn6CfN'
@@ -61,6 +61,12 @@ def api_groups():
     groups = get_hosts(attr='group')
 
     return dumps(groups)
+
+@app.route('/api/items')
+def api_items():
+    items = get_items(attr='name')
+
+    return dumps(items)
 
 if __name__ == '__main__':
     app.run(debug=True)

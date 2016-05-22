@@ -13,8 +13,9 @@
         <title>Metrink-FE</title>
     {% endif %}
 
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/simple-sidebar.css')}}">
 
     <!--<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">-->
 
@@ -37,8 +38,25 @@
 </head>
 <body>
 
-{% block content %}
-{% endblock %}
+    <div id="wrapper">
+        <!-- sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">Metrink</li>
+                <li><a href="/graph"><i class="fa fa-line-chart"></i> Graph</a></li>
+                <li><a href="/explore"><i class="fa fa-search"></i> Explore</a></li>
+            </ul>
+        </div>
+
+        <!-- page content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
 
     <footer>
         <div id="footer" class="container">

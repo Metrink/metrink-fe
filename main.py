@@ -81,6 +81,9 @@ def explore():
                 if h['hostid'] == i['hostid']:
                     table_data.append({'host': h['host'], 'group': h['group'], 'item': i['name']})
 
+    else:
+        host_arg = group_arg = metric_arg = ''
+
     return render('explore.html', 'Explore', host=host_arg, group=group_arg, metric=metric_arg, table_data=dumps(table_data))
 
 

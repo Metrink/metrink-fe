@@ -3,13 +3,23 @@ from sqlalchemy.sql import select, join
 from cache import get_cache
 import logging
 import re
+import yaml
 
 from functions.QueryFunction import QueryFunction
 from logger import logger
 
+config = None
+with open('config.yaml', 'r') as stream:
+    try:
+        config = yaml.safe_load(stream)
+    except ImportError as e:
+        print('Error opening config file: ' + str(e))
+        exit(1)
+
 # this seems like a terrible and inefficient way to go about things
 # setup the engine per http://flask.pocoo.org/docs/0.10/patterns/sqlalchemy/#sql-abstraction-layer
-engine = create_engine('mysql+mysqldb://metrink:metrink@10.0.128.44/zabbix', echo=True)
+db_url = 'mysql+mysqldb://%s:%s@%s/zabbix' % (config['db_user'], config['db_pass'], config['db_host'])
+engine = create_engine(db_url, echo=True)
 metadata = MetaData(bind=engine)
 
 # load up the tables we care about

@@ -1,7 +1,9 @@
 {% extends "_base.html" %}
 
 {% block css %}
-<link href="{{url_for('static', filename='css/typeaheadjs.css')}}" rel="stylesheet"/>
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/typeaheadjs.css')}}"/>
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/dataTables.bootstrap.css">
 <style>
 .tt-dropdown-menu {
   max-height: 50px;
@@ -21,7 +23,7 @@
                     <label for="host" class="col-sm-3 control-label">Host</label>
                     <div class="col-sm-9">
                         <div id="hosts_typeahead">
-                            <input type="text" class="form-control typeahead" id="host" />
+                            <input type="text" class="form-control typeahead" id="host" name="host" value="{{host}}"/>
                         </div>
                     </div>
                 </div>
@@ -29,7 +31,7 @@
                     <label for="group" class="col-sm-3 control-label">Group</label>
                     <div class="col-sm-9">
                         <div id="groups_typeahead">
-                            <input type="text" class="form-control typeahead" id="group" />
+                            <input type="text" class="form-control typeahead" id="group" name="group" value="{{group}}"/>
                         </div>
                     </div>
                 </div>
@@ -37,11 +39,23 @@
                     <label for="metric" class="col-sm-3 control-label">Metric</label>
                     <div class="col-sm-9">
                         <div id="items_typeahead">
-                            <input type="text" class="form-control typeahead" id="metric" />
+                            <input type="text" class="form-control typeahead" id="metric" name="metric" value="{{metric}}"/>
                         </div>
                     </div>
                 </div>
+                <button type="submit" style="display: none"></button>
             </form>
+        </div>
+    </div>
+
+    <div id="loader" class="row">
+        <div class="col-sm-12 text-center">
+            <img src="{{url_for('static', filename='img/loader.gif')}}"/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="data_table"></table>
         </div>
     </div>
 
@@ -53,6 +67,7 @@
 <script src="{{url_for('static', filename='js/typeahead.bundle.js')}}"></script>
 
 <script>
+$(function() {
     var config = {
         hint: true,
         highlight: true,
@@ -80,5 +95,22 @@
     $('#hosts_typeahead .typeahead').typeahead(config, {name: 'hosts', limit: 25, source: hosts});
     $('#groups_typeahead .typeahead').typeahead(config, {name: 'groups', limit: 25, source: groups});
     $('#items_typeahead .typeahead').typeahead(config, {name: 'items', limit: 25, source: items});
+});
+</script>
+
+<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/dataTables.bootstrap.js"></script>
+
+<script>
+$(function() {
+    $('#data_table').DataTable({
+        data: {{table_data|safe}},
+        columns: [{data: 'host', title: 'Host'}, {data: 'group', title: 'Group'}, {data: 'item', title: 'Metric'}],
+        pageLength: 25,
+        searching: false,
+        order: [[0, "asc"],[2, "asc"]],
+        initComplete: function(settings, json) { $('#loader').hide(); }
+    });
+});
 </script>
 {% endblock %}

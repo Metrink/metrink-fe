@@ -5,3 +5,4 @@ pandas-highcharts
 flask
 sqlalchemy
 python3-memcached
+PyYAML

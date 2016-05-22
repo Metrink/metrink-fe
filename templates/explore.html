@@ -105,7 +105,16 @@ $(function() {
 $(function() {
     $('#data_table').DataTable({
         data: {{table_data|safe}},
-        columns: [{data: 'host', title: 'Host'}, {data: 'group', title: 'Group'}, {data: 'item', title: 'Metric'}],
+        columns: [
+            {render: function(data, type, full, meta) {
+                    var url = encodeURIComponent('-1h m("' + full.host + '", "' + full.group + '", "' + full.item + '")');
+                    return '<a href="/graph?q=' + url + '"><i class="fa fa-line-chart"></i></a>';
+                }
+            },
+            {data: 'host', title: 'Host'},
+            {data: 'group', title: 'Group'},
+            {data: 'item', title: 'Metric'}
+        ],
         pageLength: 25,
         searching: false,
         order: [[0, "asc"],[2, "asc"]],

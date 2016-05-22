@@ -40,6 +40,7 @@ def graph():
         chart = generate_graph(query)
     else:
         chart = "{}"
+        query = ''
 
     return render('graph.html', 'Graph', chart=chart, q=query)
 

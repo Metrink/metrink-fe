@@ -2,6 +2,8 @@ import memcache
 
 from logger import logger
 
+memcache.SERVER_MAX_VALUE_LENGTH = 1024 * 1024 * 5  # set to 5 MB
+
 
 class MyCache:
     mc = None
@@ -26,7 +28,7 @@ class MyCache:
         return self.mc.get_multi(keys)
 
     def set(self, key, value, timeout=0):
-        return self.mc.set(key, value, timeout)
+        return self.mc.set(key, value, timeout, min_compress_len=512)
 
     def multi_set(self, key_values, timeout=0):
         if not isinstance(key_values, dict):
@@ -43,7 +45,7 @@ class MyCache:
 
         self.mc.delete_multi(keys)
 
-client = MyCache(memcache.Client(['127.0.0.1:11211'], debug=0))
+client = MyCache(memcache.Client(['127.0.0.1:11211'], debug=1, server_max_value_length=1024*1024*10))
 
 
 def get_cache():

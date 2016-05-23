@@ -5,7 +5,6 @@ import logging
 import re
 import yaml
 
-from functions.QueryFunction import QueryFunction
 from logger import logger
 
 config = None
@@ -137,9 +136,7 @@ def get_items(attr=None):
             'hostid': row[4]
         })
 
-    r = cache.set('items', items, timeout=43200)
-
-    print(r)
+    cache.set('items', items, timeout=43200)
 
     # pull out an attribute if we're looking for one
     # removes duplicates as well

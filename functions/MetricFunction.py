@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 from pandas import DataFrame, read_sql
-from random import randint
-from sqlalchemy import create_engine, MetaData, Table, and_
+from sqlalchemy import and_
 from sqlalchemy.sql import select
 import logging
 
 from functions.QueryFunction import QueryFunction
 from logger import logger
+from zabbix import filter_metrics
 import os, sys
 
 # sys.path.insert(1, os.path.join(sys.path[0], '..'))
@@ -15,45 +15,37 @@ from zabbix import engine, hosts_table, items_table, history_table
 
 
 class MetricFunction(QueryFunction):
-    def __init__(self, host:str, group:str, name:str):
-        super().__init__('metric', (host, group, name))
+    def __init__(self, host:str, group:str, metric:str):
+        super().__init__('metric', (host, group, metric))
         self.host = str(host)
         self.group = str(group)
-        self.name = str(name)
+        self.metric = str(metric)
 
     def process(self, start_time:datetime, end_time:datetime, input:DataFrame):
         cur_time = start_time
         index = []
         data = []
 
-        # get the host id
-        res = hosts_table.select(hosts_table.c.host == self.host).execute().first()
+        # expand the hosts and groups
+        metric_list = filter_metrics(self.host, self.group, self.metric)
 
-        if res is None:
-            logger.warn('Unknown host: ' + str(self.host))
-            return input
+        logger.debug('Got a list of %d metrics to pull from db' % (len(metric_list), ))
 
-        host_id = res[0]
+        ret = DataFrame()
 
-        res = items_table.select(and_(items_table.c.name == self.name, items_table.c.hostid == host_id)).execute().first()
+        # go through and read the data one item at a time
+        for metric in metric_list:
+            cond = and_(history_table.c.itemid == metric['itemid'], history_table.c.clock > start_time.timestamp())
+            cond = and_(cond, history_table.c.clock < end_time.timestamp())
+            data = read_sql(select([history_table.c.clock, history_table.c.value]).where(cond), engine, parse_dates=('clock', ), index_col='clock')
 
-        if res is None:
-            logger.warn('Unknown item/metric: ' + str(self.name))
-            return input
+            # rename to the metric
+            metric_name = "%s:%s:%s" % (metric['host'], metric['group'], metric['item'])
+            data.columns = [metric_name]
 
-        item_id = res[0]
-
-        print('HOSTID: %d ITEMID: %d' % (host_id, item_id))
-
-        ret = read_sql(select([history_table.c.clock, history_table.c.value]).where(history_table.c.itemid == item_id), engine, parse_dates=('clock', ), index_col='clock')
-
-        # rename to the metric
-        metric_name = "%s:%s:%s" % (self.host, self.group, self.name)
-        ret.columns = [metric_name]
+            ret = ret.combine_first(data)
 
         print(ret.head())
-        print(ret.tail())
-
 
         return ret
 

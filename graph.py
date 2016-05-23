@@ -3,6 +3,7 @@ from antlr4.error.ErrorListener import ErrorListener
 from pandas import DataFrame
 from pandas_highcharts.core import serialize
 
+from logger import logger
 from parser.MetrinkLexer import MetrinkLexer
 from parser.MetrinkParser import MetrinkParser
 from QueryBuilderVisitor import QueryBuilderVisitor
@@ -63,6 +64,21 @@ def generate_graph(query, chart_div='graph'):
             last_frame = cur_frame
 
         i += 2
+
+    # fill in any missing data
+    last_frame = last_frame.fillna(method='ffill')
+
+    # resample based upon the time
+    graph_range = end - start
+
+    if graph_range.days > 1:
+        last_frame = last_frame.resample('60T').mean()  # resample to every 60 minutes
+    elif graph_range.seconds > 5400:
+        last_frame = last_frame.resample('5T').mean()  # if more than 1.5 hours, resample to every 5 minutes
+
+    (rows, cols) = last_frame.shape
+
+    logger.debug('Data Frame size: %d x %d' % (rows, cols))
 
     # return the chart for rendering with HighCharts
     return serialize(last_frame, render_to=chart_div, output_type='json')

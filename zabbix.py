@@ -149,6 +149,49 @@ def get_items(attr=None):
     return items
 
 
+def filter_metrics(host:str=None, group:str=None, metric:str=None):
+    """
+    Filters out all of the metrics based on host, group, and metric name
+    :param host:
+    :param group:
+    :param metric:
+    :return:
+    """
+
+    if host is None and group is None and metric is None:
+        logger.warn('Tried to ask for full table of data')
+        return []  # we shouldn't go returning everything
+
+    # get hosts and groups
+    hosts = get_hosts()
+
+    # compile patterns for them all
+    host_patern = re.compile(host.replace('*', '.*')) if host is not None else re.compile('.*')
+    group_patern = re.compile(group.replace('*', '.*')) if group is not None else re.compile('.*')
+    item_patern = re.compile(metric.replace('*', '.*')) if metric is not None else re.compile('.*')
+
+    # filter out those that don't match the host and group
+    hosts = filter(lambda h: re.match(host_patern, h['host']) and re.match(group_patern, h['group']), hosts)
+    host_lookup = {h['hostid']: h for h in hosts}
+
+    # pick out the items that match the host_ids and name
+    items = filter(lambda i: i['hostid'] in host_lookup.keys() and re.match(item_patern, i['name']), get_items())
+
+    ret = []
+
+    for i in items:
+        if i['hostid'] in host_lookup.keys():
+            h = host_lookup[i['hostid']]
+            ret.append({
+                'host': h['host'],
+                'hostid': h['hostid'],
+                'group': h['group'],
+                'groupid': h['groupid'],
+                'item': i['name'],
+                'itemid': i['itemid']
+            })
+
+    return ret
 
 # for h in get_hosts_in_group('Tier-[2|3] Templates'):
 #     print(h['group'])

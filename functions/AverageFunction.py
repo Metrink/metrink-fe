@@ -9,9 +9,15 @@ class AverageFunction(QueryFunction):
         if self._args is not None and len(self._args) > 2:
             raise ValueError('Invalid argument to average function')
 
-        if len(self._args) == 0:
-            # just return the column-wise mean
-            return input.mean(1)
-        else:
-            # process the input
-            return self._args[0].process(start_time, end_time, input).mean(1)
+        # get a copy of the input
+        data = (input if len(self._args) == 0 else self._args[0].process(start_time, end_time, input)).copy(deep=True)
+
+        # go through each column, get the average, and apply it to the rows
+        for col in data.columns:
+            avg = data[col].mean()
+            data[col] = data[col].apply(lambda a: avg)
+            data.rename(columns={col: 'avg ' + col}, inplace=True)
+
+        print(data.head())
+
+        return data

@@ -45,8 +45,6 @@ class MetricFunction(QueryFunction):
 
             ret = ret.combine_first(data)
 
-        print(ret.head())
-
         return ret
 
         # metric_name = "%s:%s:%s" % (self.host, self.group, self.name)

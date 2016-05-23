@@ -48,6 +48,9 @@ def generate_graph(query, chart_div='graph'):
     # run the first function and get the DataFrame
     last_frame = expression[0].process(start, end, DataFrame())
 
+    logger.debug('FIRST:')
+    logger.debug("\n" + str(last_frame.head()))
+
     # go through all the other functions
     for i in range(1, len(expression), 2):
         conn = expression[i]
@@ -63,6 +66,9 @@ def generate_graph(query, chart_div='graph'):
         else:
             last_frame = cur_frame
 
+        logger.debug("FRAME: %d" % i)
+        logger.debug("\n" + str(last_frame.head()))
+
         i += 2
 
     # fill in any missing data
@@ -76,9 +82,10 @@ def generate_graph(query, chart_div='graph'):
     elif graph_range.seconds > 5400:
         last_frame = last_frame.resample('5T').mean()  # if more than 1.5 hours, resample to every 5 minutes
 
-    (rows, cols) = last_frame.shape
+    print(last_frame.head())
 
-    logger.debug('Data Frame size: %d x %d' % (rows, cols))
+    # (rows, cols) = last_frame.shape
+    # logger.debug('Data Frame size: %d x %d' % (rows, cols))
 
     # return the chart for rendering with HighCharts
-    return serialize(last_frame, render_to=chart_div, output_type='json')
+    return serialize(last_frame, render_to=chart_div, output_type='json', title=query)

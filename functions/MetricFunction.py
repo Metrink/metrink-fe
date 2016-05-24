@@ -35,8 +35,8 @@ class MetricFunction(QueryFunction):
 
         # go through and read the data one item at a time
         for metric in metric_list:
-            cond = and_(history_table.c.itemid == metric['itemid'], history_table.c.clock > start_time.timestamp())
-            cond = and_(cond, history_table.c.clock < end_time.timestamp())
+            cond = and_(history_table.c.itemid == metric['itemid'], history_table.c.clock > int(start_time.timestamp()))
+            cond = and_(cond, history_table.c.clock < int(end_time.timestamp()))
             data = read_sql(select([history_table.c.clock, history_table.c.value]).where(cond), engine, parse_dates=('clock', ), index_col='clock')
 
             # rename to the metric
@@ -51,10 +51,10 @@ class MetricFunction(QueryFunction):
         graph_range = end_time - start_time
 
         # resample based upon the time
-        if graph_range.days > 1:  # if more than 1 day of values
+        if not ret.empty and graph_range.days > 1:  # if more than 1 day of values
             logger.debug('Resampling down to 60 minutes')
             ret = ret.resample('60T').median()  # resample to every 60 minutes
-        elif graph_range.seconds > 5400:  # if more than 1.5 hours
+        elif not ret.empty and graph_range.seconds > 5400:  # if more than 1.5 hours
             logger.debug('Resampling down to 5 minutes')
             ret = ret.resample('5T').median()  # resample to every 5 minutes
 

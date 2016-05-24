@@ -45,20 +45,23 @@ class MetricFunction(QueryFunction):
 
             ret = ret.combine_first(data)
 
+        # fill in any missing data
+        ret = ret.fillna(method='ffill')
+
+        graph_range = end_time - start_time
+
+        # resample based upon the time
+        if graph_range.days > 1:  # if more than 1 day of values
+            logger.debug('Resampling down to 60 minutes')
+            ret = ret.resample('60T').median()  # resample to every 60 minutes
+        elif graph_range.seconds > 5400:  # if more than 1.5 hours
+            logger.debug('Resampling down to 5 minutes')
+            ret = ret.resample('5T').median()  # resample to every 5 minutes
+
         return ret
 
-        # metric_name = "%s:%s:%s" % (self.host, self.group, self.name)
-        #
-        # while cur_time < end_time:
-        #     data.append({metric_name: randint(0, 10)})
-        #     index.append(cur_time)
-        #
-        #     cur_time += timedelta(minutes=10)
-        #
-        # return DataFrame(data, index=index)
 
-
-#
+            #
 # Zabbix Tables
 #
 #   history - stores the actual metric information

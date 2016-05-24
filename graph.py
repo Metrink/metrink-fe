@@ -71,17 +71,6 @@ def generate_graph(query, chart_div='graph'):
 
         i += 2
 
-    # fill in any missing data
-    last_frame = last_frame.fillna(method='ffill')
-
-    # resample based upon the time
-    graph_range = end - start
-
-    if graph_range.days > 1:
-        last_frame = last_frame.resample('60T').mean()  # resample to every 60 minutes
-    elif graph_range.seconds > 5400:
-        last_frame = last_frame.resample('5T').mean()  # if more than 1.5 hours, resample to every 5 minutes
-
     print(last_frame.head())
 
     # (rows, cols) = last_frame.shape

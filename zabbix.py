@@ -24,12 +24,12 @@ metadata = MetaData(bind=engine)
 # load up the tables we care about
 # need to make this more configurable
 hosts_table = Table('hosts', metadata, autoload=True)
-history_table = Table('history', metadata, autoload=True)
 items_table = Table('items', metadata, autoload=True)
 groups_table = Table('groups', metadata, autoload=True)
 hosts_groups_table = Table('hosts_groups', metadata, autoload=True)
 
-print('IN HERE')
+history_table = Table('history', metadata, autoload=True)
+history_uint_table = Table('history_uint', metadata, autoload=True)
 
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
@@ -115,7 +115,8 @@ def get_items(attr=None):
     j1 = join(hosts_table, items_table, hosts_table.c.hostid == items_table.c.hostid)
 
     # run the select to fetch in what we want
-    res = engine.execute(select([items_table.c.itemid, items_table.c.name, items_table.c.description, hosts_table.c.host, items_table.c.hostid, items_table.c.key_]).select_from(j1))
+    cols = [items_table.c.itemid, items_table.c.name, hosts_table.c.host, items_table.c.hostid, items_table.c.key_, items_table.c.value_type]
+    res = engine.execute(select(cols).select_from(j1))
 
     items = []
 
@@ -123,7 +124,7 @@ def get_items(attr=None):
         name = row[1]
 
         if '$' in name:
-            keys = row[5][row[5].index('[')+1:row[5].index(']')].split(',')
+            keys = row[4][row[4].index('[')+1:row[4].index(']')].split(',')
 
             for k in re.findall('\$\d+', name):
                 name = name.replace(k, keys[int(k[1:])-1])
@@ -131,9 +132,9 @@ def get_items(attr=None):
         items.append({
             'itemid': row[0],
             'name': name,
-            'description': row[2],
-            'host': row[3],
-            'hostid': row[4]
+            'host': row[2],
+            'hostid': row[3],
+            'value_type': row[5]
         })
 
     cache.set('items', items, timeout=43200)
@@ -185,7 +186,8 @@ def filter_metrics(host:str=None, group:str=None, metric:str=None):
                 'group': h['group'],
                 'groupid': h['groupid'],
                 'item': i['name'],
-                'itemid': i['itemid']
+                'itemid': i['itemid'],
+                'value_type': i['value_type']
             })
 
     return ret

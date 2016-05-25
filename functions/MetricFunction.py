@@ -11,7 +11,7 @@ import os, sys
 
 # sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from zabbix import engine, hosts_table, items_table, history_table
+from zabbix import engine, hosts_table, items_table, history_table, history_uint_table
 
 
 class MetricFunction(QueryFunction):
@@ -35,9 +35,20 @@ class MetricFunction(QueryFunction):
 
         # go through and read the data one item at a time
         for metric in metric_list:
-            cond = and_(history_table.c.itemid == metric['itemid'], history_table.c.clock > int(start_time.timestamp()))
-            cond = and_(cond, history_table.c.clock < int(end_time.timestamp()))
-            data = read_sql(select([history_table.c.clock, history_table.c.value]).where(cond), engine, parse_dates=('clock', ), index_col='clock')
+            logger.debug('VALUE TYPE: ' + str(metric['value_type']))
+
+            if metric['value_type'] == 0:
+                cond = and_(history_table.c.itemid == metric['itemid'], history_table.c.clock > int(start_time.timestamp()))
+                cond = and_(cond, history_table.c.clock < int(end_time.timestamp()))
+
+                data = read_sql(select([history_table.c.clock, history_table.c.value]).where(cond), engine, parse_dates=('clock', ), index_col='clock')
+            elif metric['value_type'] == 3:
+                cond = and_(history_uint_table.c.itemid == metric['itemid'], history_uint_table.c.clock > int(start_time.timestamp()))
+                cond = and_(cond, history_uint_table.c.clock < int(end_time.timestamp()))
+
+                data = read_sql(select([history_uint_table.c.clock, history_uint_table.c.value]).where(cond), engine, parse_dates=('clock', ), index_col='clock')
+            else:
+                raise ValueError('Unknown value type: ' + str(metric['value_type']))
 
             # rename to the metric
             metric_name = "%s:%s:%s" % (metric['host'], metric['group'], metric['item'])
@@ -51,9 +62,15 @@ class MetricFunction(QueryFunction):
         graph_range = end_time - start_time
 
         # resample based upon the time
-        if not ret.empty and graph_range.days > 1:  # if more than 1 day of values
+        if not ret.empty and graph_range.days >= 10:  # if more than 10 days of values
+            logger.debug('Resampling down to 24 hours')
+            ret = ret.resample('24H').median()  # resample to every day
+        elif not ret.empty and graph_range.days >= 1:  # if more than 1 day of values
             logger.debug('Resampling down to 60 minutes')
             ret = ret.resample('60T').median()  # resample to every 60 minutes
+        elif not ret.empty and graph_range.seconds > 43200:  # if more than 12 hours
+            logger.debug('Resampling down to 10 minutes')
+            ret = ret.resample('10T').median()  # resample to every 10 minutes
         elif not ret.empty and graph_range.seconds > 5400:  # if more than 1.5 hours
             logger.debug('Resampling down to 5 minutes')
             ret = ret.resample('5T').median()  # resample to every 5 minutes

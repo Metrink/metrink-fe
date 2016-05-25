@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, MetaData, Table, and_
 from sqlalchemy.sql import select, join
+from datetime import datetime
 from cache import get_cache
 import logging
 import re
@@ -203,16 +204,19 @@ def resample_metrics(df, start, end):
 
     if graph_range.days >= 10:  # if more than 10 days of values
         logger.debug('Resampling down to 24 hours')
-        df = df.resample('24H').median()  # resample to every day
+        df = df.resample('24H', closed='left', label='left').median()  # resample to every day
     elif graph_range.days >= 1:  # if more than 1 day of values
         logger.debug('Resampling down to 60 minutes')
-        df = df.resample('60T').median()  # resample to every 60 minutes
+        df = df.resample('60T', closed='left', label='left').median()  # resample to every 60 minutes
     elif graph_range.seconds > 43200:  # if more than 12 hours
         logger.debug('Resampling down to 10 minutes')
-        df = df.resample('10T').median()  # resample to every 10 minutes
+        df = df.resample('10T', closed='left', label='left').median()  # resample to every 10 minutes
     elif graph_range.seconds > 5400:  # if more than 1.5 hours
         logger.debug('Resampling down to 5 minutes')
-        df = df.resample('5T').median()  # resample to every 5 minutes
+        df = df.resample('5T', closed='left', label='left').median()  # resample to every 5 minutes
+
+    # round down to the nearest second
+    df.index = df.index.map(lambda i: datetime.fromtimestamp(int(i.timestamp()//10)*10))
 
     return df
 

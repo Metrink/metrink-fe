@@ -39,9 +39,9 @@ if __name__ == '__main__':
             print()
             print('INPUT: ' + l)
 
-            # for token in stream.tokens:
-            #     if token.text != '<EOF>':
-            #         print("%s: %s" % (token.text, MetrinkLexer.symbolicNames[token.type-1]))
+            for token in stream.tokens:
+                if token.text != '<EOF>':
+                    print("%s: %s" % (token.text, MetrinkLexer.symbolicNames[token.type-1]))
 
             parser = MetrinkParser(stream)
 

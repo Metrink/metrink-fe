@@ -2,16 +2,10 @@ from datetime import datetime, timedelta
 from pandas import DataFrame, read_sql
 from sqlalchemy import and_
 from sqlalchemy.sql import select
-import logging
 
 from functions.QueryFunction import QueryFunction
 from logger import logger
-from zabbix import filter_metrics
-import os, sys
-
-# sys.path.insert(1, os.path.join(sys.path[0], '..'))
-
-from zabbix import engine, hosts_table, items_table, history_table, history_uint_table
+from zabbix import filter_metrics, engine, history_table, history_uint_table, resample_metrics
 
 
 class MetricFunction(QueryFunction):
@@ -56,24 +50,8 @@ class MetricFunction(QueryFunction):
 
             ret = ret.combine_first(data)
 
-        # fill in any missing data
-        ret = ret.fillna(method='ffill')
-
-        graph_range = end_time - start_time
-
-        # resample based upon the time
-        if not ret.empty and graph_range.days >= 10:  # if more than 10 days of values
-            logger.debug('Resampling down to 24 hours')
-            ret = ret.resample('24H').median()  # resample to every day
-        elif not ret.empty and graph_range.days >= 1:  # if more than 1 day of values
-            logger.debug('Resampling down to 60 minutes')
-            ret = ret.resample('60T').median()  # resample to every 60 minutes
-        elif not ret.empty and graph_range.seconds > 43200:  # if more than 12 hours
-            logger.debug('Resampling down to 10 minutes')
-            ret = ret.resample('10T').median()  # resample to every 10 minutes
-        elif not ret.empty and graph_range.seconds > 5400:  # if more than 1.5 hours
-            logger.debug('Resampling down to 5 minutes')
-            ret = ret.resample('5T').median()  # resample to every 5 minutes
+        # resample data
+        ret = resample_metrics(ret, start_time, end_time)
 
         return ret
 

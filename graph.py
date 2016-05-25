@@ -8,6 +8,7 @@ from parser.MetrinkLexer import MetrinkLexer
 from parser.MetrinkParser import MetrinkParser
 from QueryBuilderVisitor import QueryBuilderVisitor
 from functions.QueryFunction import QueryFunction
+from zabbix import resample_metrics
 
 
 class MyErrorListener(ErrorListener):
@@ -70,6 +71,9 @@ def generate_graph(query, chart_div='graph'):
         logger.debug("\n" + str(last_frame.head()))
 
         i += 2
+
+    # resample to fill in anything that might be missing
+    last_frame = resample_metrics(last_frame, start, end)
 
     print(last_frame.head())
 

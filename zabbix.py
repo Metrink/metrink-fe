@@ -192,8 +192,34 @@ def filter_metrics(host:str=None, group:str=None, metric:str=None):
 
     return ret
 
+
+def resample_metrics(df, start, end):
+    if df.empty:
+        return df
+
+    df = df.fillna(method='ffill')
+
+    graph_range = end - start
+
+    if graph_range.days >= 10:  # if more than 10 days of values
+        logger.debug('Resampling down to 24 hours')
+        df = df.resample('24H').median()  # resample to every day
+    elif graph_range.days >= 1:  # if more than 1 day of values
+        logger.debug('Resampling down to 60 minutes')
+        df = df.resample('60T').median()  # resample to every 60 minutes
+    elif graph_range.seconds > 43200:  # if more than 12 hours
+        logger.debug('Resampling down to 10 minutes')
+        df = df.resample('10T').median()  # resample to every 10 minutes
+    elif graph_range.seconds > 5400:  # if more than 1.5 hours
+        logger.debug('Resampling down to 5 minutes')
+        df = df.resample('5T').median()  # resample to every 5 minutes
+
+    return df
+
+
 # for h in get_hosts_in_group('Tier-[2|3] Templates'):
 #     print(h['group'])
 
 # for i in get_items():
 #     print(i['name'])
+

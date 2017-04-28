@@ -1,3 +1,7 @@
+# Log queries
+
+
+# Metric queries
 -1d metric('blah', 'blah', 'blah') m('1', '1', '1')
 
 -1d metric('blah', 'blah', 'blah')
@@ -29,3 +33,5 @@
 -1h abs( m('*', 'b', 'b') + m('*', 'b', 'b') )| avg | sum(m('a','b','c')+7, 23, 15.3) | graph
 -1h abs( m('*', 'b', 'b') + m('*', 'b', 'b') ) + abs(m('*', 'b', 'b') * m('*', 'b', 'b') )| avg | graph 
 -1h m('*', 'b', 'b') | sum(abs(2) + m('a','b','c'), 7)
+
+

@@ -4,14 +4,16 @@ from parser.MetrinkParser import MetrinkParser
 from functions import QUERY_FUNCTIONS
 from functions.MathFunction import MathFunction
 from functions.MetricFunction import MetricFunction
+from functions.LogFunction import LogFunction
 
 from dateutil import parser
 import datetime
 
 
 class QueryBuilderVisitor(MetrinkVisitor):
-    # Visit a parse tree produced by MetrinkParser#graph_query.
-    def visitGraph_query(self, ctx: MetrinkParser.Graph_queryContext):
+
+    # Visit a parse tree produced by MetrinkParser#metrink_query.
+    def visitMetrink_query(self, ctx:MetrinkParser.Metrink_queryContext):
         start_time = self.visit(ctx.children[0])
         end_time = datetime.datetime.now()
 
@@ -29,39 +31,44 @@ class QueryBuilderVisitor(MetrinkVisitor):
             if end_time > datetime.datetime.now():
                 end_time += datetime.timedelta(days=1)
 
-            graph_expression = self.visit(ctx.children[3])
+            expression = self.visit(ctx.children[3])
         else:
-            graph_expression = self.visit(ctx.children[1])
+            expression = self.visit(ctx.children[1])
 
         if start_time > end_time:
             raise ValueError('Start time must be before end time: ' + str(start_time) + ' > ' + str(end_time))
 
-        return (start_time, end_time, graph_expression)
+        return (start_time, end_time, expression)
 
+    # Visit a parse tree produced by MetrinkParser#log_expression.
+    def visitLog_expression(self, ctx:MetrinkParser.Log_expressionContext):
+        return self.__visit_expression(ctx.children)
 
     # Visit a parse tree produced by MetrinkParser#graph_expression.
-    # returns a list of function, connector, function, connector, etc...
-    def visitGraph_expression(self, ctx: MetrinkParser.Graph_expressionContext):
-        children = []
+    def visitGraph_expression(self, ctx:MetrinkParser.Graph_expressionContext):
+        return self.__visit_expression(ctx.children)
+
+    def __visit_expression(self, children):
+        flattened_children = []
 
         # visit all the children, and flatten everything out
-        for child in ctx.children:
+        for child in children:
             r = self.visit(child)
             if isinstance(r, list):
-                children.extend(r)
+                flattened_children.extend(r)
             else:
-                children.append(r)
+                flattened_children.append(r)
 
-        c_len = len(children)
+        c_len = len(flattened_children)
         ret = []
 
         i = 0
         while i < c_len:
-            child = children[i]
+            child = flattened_children[i]
             ret.append(child)
 
             if i < c_len-1:
-                next_child = children[i+1]
+                next_child = flattened_children[i+1]
 
                 # add in the implicit copy connector if it's not there
                 if not isinstance(next_child, str):
@@ -74,10 +81,42 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
         return ret
 
+    # Visit a parse tree produced by MetrinkParser#log.
+    def visitLog(self, ctx:MetrinkParser.LogContext):
+        indices = self.visit(ctx.children[2])
+
+        field_lists = dict()
+
+        for child in ctx.children[4:-1]:
+            res = self.visit(child)
+
+            if len(res) == 2:
+                field_lists[res[0]] = res[1]
+
+        return LogFunction(indices, field_lists)
+
+    # Visit a parse tree produced by MetrinkParser#index_specifier.
+    def visitIndex_specifier(self, ctx:MetrinkParser.Index_specifierContext):
+        index_list = self.visit(ctx.children[2])
+
+        # always force it into a list
+        index_list = [index_list] if not isinstance(index_list, list) else index_list
+
+        return index_list
+
+    # Visit a parse tree produced by MetrinkParser#field_list.
+    def visitField_list(self, ctx:MetrinkParser.Field_listContext):
+        field = self.visit(ctx.children[0])
+        field_values = self.visit(ctx.children[2])
+
+        # always force it into a list
+        field_values = [field_values] if not isinstance(field_values, list) else field_values
+
+        return field, field_values
+
     # Visit a parse tree produced by MetrinkParser#connector.
     def visitConnector(self, ctx: MetrinkParser.ConnectorContext):
         return self.visitChildren(ctx) # this just grabs the character
-
 
     # Visit a parse tree produced by MetrinkParser#metric.
     def visitMetric(self, ctx: MetrinkParser.MetricContext):
@@ -111,8 +150,8 @@ class QueryBuilderVisitor(MetrinkVisitor):
         for child in ctx.children[1:-1]:
             ret.append(self.visit(child))
 
-        return ret
-
+        # filter out all the commas
+        return [r for r in ret if r != ',']
 
     # Visit a parse tree produced by MetrinkParser#function.
     def visitFunction(self, ctx: MetrinkParser.FunctionContext):
@@ -123,7 +162,7 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
         # check for arguments
         if len(ctx.children) != 1:
-            args = list(filter(lambda a: a != ',', self.visit(ctx.children[1])[1:-1]))
+            args = [a for a in self.visit(ctx.children[1])[1:-1] if a != ',']
         else:
             args = []
 
@@ -137,7 +176,6 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
         return QUERY_FUNCTIONS[name](name, args)
 
-
     # Visit a parse tree produced by MetrinkParser#argument_list.
     def visitArgument_list(self, ctx: MetrinkParser.Argument_listContext):
         ret = []
@@ -145,8 +183,8 @@ class QueryBuilderVisitor(MetrinkVisitor):
         for child in ctx.children:
             ret.append(self.visit(child))
 
-        return ret
-
+        # filter out all the commas
+        return [r for r in ret if r != ',']
 
     # Visit a parse tree produced by MetrinkParser#argument.
     def visitArgument(self, ctx: MetrinkParser.ArgumentContext):
@@ -155,11 +193,9 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
         return self.visit(ctx.children[0])
 
-
     # Visit a parse tree produced by MetrinkParser#additive_expression.
     def visitAdditive_expression(self, ctx: MetrinkParser.Additive_expressionContext):
         return self._handle_math_function(ctx)
-
 
     # Visit a parse tree produced by MetrinkParser#multiplicative_expression.
     def visitMultiplicative_expression(self, ctx: MetrinkParser.Multiplicative_expressionContext):
@@ -201,7 +237,6 @@ class QueryBuilderVisitor(MetrinkVisitor):
         else:
             return int(num)
 
-
     # Visit a parse tree produced by MetrinkParser#relative_time_array.
     def visitRelative_time_array(self, ctx: MetrinkParser.Relative_time_arrayContext):
         ret = []
@@ -209,12 +244,13 @@ class QueryBuilderVisitor(MetrinkVisitor):
         for child in ctx.children:
             ret.append(self.visit(child))
 
-        return ret
-
+        # filter out all the commas
+        return [r for r in ret if r != ',']
 
     # Visit a parse tree produced by MetrinkParser#relative_time_literal.
     def visitRelative_time_literal(self, ctx: MetrinkParser.Relative_time_literalContext):
         num = int(ctx.children[0].getText())
+
         # convert everything into seconds
         if ctx.children[1].getText() == 's':
             delta = datetime.timedelta(seconds=num)
@@ -224,9 +260,10 @@ class QueryBuilderVisitor(MetrinkVisitor):
             delta = datetime.timedelta(hours=num)
         elif ctx.children[1].getText() == 'd':
             delta = datetime.timedelta(days=num)
+        else:
+            raise ValueError("Unknown time: %s" % ctx.children[1].getText())
 
         return delta
-
 
     # Visit a parse tree produced by MetrinkParser#absolute_date_literal.
     def visitAbsolute_date_literal(self, ctx: MetrinkParser.Absolute_date_literalContext):
@@ -235,19 +272,16 @@ class QueryBuilderVisitor(MetrinkVisitor):
         print("PARSING: " + ctx.getText())
         return parser.parse(ctx.getText())
 
-
     # Visit a parse tree produced by MetrinkParser#absolute_time_literal.
     def visitAbsolute_time_literal(self, ctx: MetrinkParser.Absolute_time_literalContext):
         self.visitChildren(ctx)
 
         return parser.parse(ctx.getText())
 
-
     # Visit a parse tree produced by MetrinkParser#percent_literal.
     def visitPercent_literal(self, ctx: MetrinkParser.Percent_literalContext):
         raise NotImplementedError("Percent Literal not yet implemented")
         # return self.visitChildren(ctx)
-
 
     # Visit a parse tree produced by MetrinkParser#boolean_literal.
     def visitBoolean_literal(self, ctx: MetrinkParser.Boolean_literalContext):
@@ -257,7 +291,6 @@ class QueryBuilderVisitor(MetrinkVisitor):
             return True
         else:
             return False
-
 
     # Visit a parse tree produced by MetrinkParser#string_literal.
     def visitString_literal(self, ctx: MetrinkParser.String_literalContext):

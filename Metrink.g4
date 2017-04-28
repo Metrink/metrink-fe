@@ -16,7 +16,7 @@ index_specifier:
     INDEX EQUAL (string_literal|string_array);
 
 field_list:
-    IDENTIFIER EQUAL (string_array|string_literal);
+    IDENTIFIER EQUAL (string_literal|string_literal);
 
 connector:
     PIPE | COPY_PIPE | AMP;

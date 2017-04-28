@@ -40,7 +40,7 @@ def generate_graph(query, chart_div='graph'):
     parser.addErrorListener(MyErrorListener(query))
 
     # construct the AST
-    tree = parser.graph_query()
+    tree = parser.metrink_query()
 
     # walk the AST to get our start, end, and expression
     visitor = QueryBuilderVisitor()

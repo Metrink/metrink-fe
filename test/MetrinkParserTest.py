@@ -12,8 +12,9 @@ class MyErrorListener(ErrorListener, unittest.TestCase):
         self.input = input
 
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
-        print("FAILED: %s" % self.input)
-        self.fail("PARSE FAILED:\t %d:%d %s" % (line, column, msg))
+        print("LINE: %s" % self.input)
+        print("%d:%d %s" % (line, column, msg))
+        self.fail("PARSE FAILED")
 
     def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
         print(str(startIndex) + " to " + str(stopIndex))

@@ -10,13 +10,13 @@ graph_expression:
     (additive_expression)+ (connector function)*;
 
 log:
-    LOG LPAREN (index_specifier)+ (COMMA field_list)+ RPAREN;
+    LOG LPAREN index_specifier (COMMA field_list)+ RPAREN;
 
 index_specifier:
-    INDEX EQUAL string_literal;
+    INDEX EQUAL (string_literal|string_array);
 
 field_list:
-    string_literal EQUAL (string_array|string_literal);
+    IDENTIFIER EQUAL (string_array|string_literal);
 
 connector:
     PIPE | COPY_PIPE | AMP;
@@ -145,7 +145,7 @@ FALSE:
     'false'|'FALSE';
 
 IDENTIFIER:
-    [a-zA-Z][a-zA-Z0-9]*;
+    [a-zA-Z][a-zA-Z0-9_]*;
 
 POSITIVE_INTEGER_LITERAL:
     [0-9]+;

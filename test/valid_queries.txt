@@ -1,5 +1,7 @@
 # Log queries
-
+-1d log(index='bob', f1='f2')
+-1d log(index=['bob','sally'], f1='f2')
+-1d log(index=['bob','sally'], f1=['f2','f3'])
 
 # Metric queries
 -1d metric('blah', 'blah', 'blah') m('1', '1', '1')

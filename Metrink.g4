@@ -1,10 +1,22 @@
 grammar Metrink;
 
-graph_query:
-    (relative_time_literal | absolute_date_time_literal | absolute_time_literal) ('to' (absolute_date_time_literal | absolute_time_literal) )? graph_expression;
+metrink_query:
+    (relative_time_literal | absolute_date_time_literal | absolute_time_literal) ('to' (absolute_date_time_literal | absolute_time_literal) )? (graph_expression | log_expression);
+
+log_expression:
+    (log)+ (connector function)*;
 
 graph_expression:
     (additive_expression)+ (connector function)*;
+
+log:
+    LOG LPAREN (index_specifier)+ (COMMA field_list)+ RPAREN;
+
+index_specifier:
+    INDEX EQUAL string_literal;
+
+field_list:
+    string_literal EQUAL (string_array|string_literal);
 
 connector:
     PIPE | COPY_PIPE | AMP;
@@ -75,6 +87,12 @@ AMP:
 METRIC:
     ('metric'|'m');
 
+LOG:
+    ('log'|'l');
+
+INDEX:
+    ('index'|'i');
+
 LPAREN:
     '(';
 
@@ -89,6 +107,9 @@ RBRACKET:
 
 COMMA:
     ',';
+
+EQUAL:
+    '=';
 
 PLUS:
     '+';

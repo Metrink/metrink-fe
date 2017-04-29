@@ -19,8 +19,16 @@ class LogFunction(QueryFunction):
 
         search = Search(using=self.client, index=self.indices[0])
         # search = search.filter("range", publish_date={'gte': start_time, 'lte': end_time})
-        search = search.query("match", **self.fields)
 
+        for k,v in self.fields.items():
+            if isinstance(v, list):
+                for sv in v:
+                    search = search.query("match", **{k:sv})
+
+            else:
+                search = search.query("match", **{k:v})
+
+        logger.debug('ES Query: %s' % str(search.to_dict()))
         response = search.execute()
 
         logger.debug('Results: success:%d failed:%d hits:%d' % (response._shards.successful, response._shards.failed, len(response.hits)))

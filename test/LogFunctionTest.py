@@ -8,10 +8,8 @@ from functions.LogFunction import LogFunction
 
 class LogFunctionTest(unittest.TestCase):
     def test_simple_query(self):
-        lf = LogFunction(['test'], {'f1': 'blah'})
+        lf = LogFunction(['logstash-2015.05.19'], {'ip': '235.60.152.170'})
 
-        df = DataFrame()
-
-        lf.process(datetime(2017, 1, 1), datetime(2017, 12, 31), df)
+        df = lf.process(datetime(2017, 1, 1), datetime(2017, 12, 31), DataFrame())
 
         print(df)

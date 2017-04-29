@@ -18,10 +18,18 @@ class LogFunction(QueryFunction):
         logger.debug('Log request: index=%s fields=%s' % (str(self.indices), str(self.fields)))
 
         search = Search(using=self.client, index=self.indices[0])
-        search = search.filter("range", publish_date={'gte': start_time, 'lte': end_time})
+        # search = search.filter("range", publish_date={'gte': start_time, 'lte': end_time})
         search = search.query("match", **self.fields)
 
         response = search.execute()
 
+        logger.debug('Results: success:%d failed:%d hits:%d' % (response._shards.successful, response._shards.failed, len(response.hits)))
+
         for hit in response:
-            print(hit.meta.score, hit.title)
+            # filter out the meta key and flatten the values
+            row = {k: str(hit[k]) for k in hit if k != 'meta'}
+
+            logger.debug(row)
+            input = input.append(row, ignore_index=True)
+
+        return input

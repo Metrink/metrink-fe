@@ -23,6 +23,7 @@ class MyErrorListener(ErrorListener):
     def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
         print(str(startIndex) + " to " + str(stopIndex))
 
+
 def parse_query(query:str) -> (str,str,list,DataFrame):
     """
     Processes a query and returns the start, end, and QueryFunction
@@ -35,6 +36,11 @@ def parse_query(query:str) -> (str,str,list,DataFrame):
 
     # fill the token stream
     stream.fill()
+
+    for token in stream.tokens:
+        if token.text != '<EOF>':
+            print("%s: %s" % (token.text, MetrinkLexer.symbolicNames[token.type-1]))
+
 
     # create a parser
     parser = MetrinkParser(stream)

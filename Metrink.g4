@@ -9,6 +9,9 @@ log_expression:
 graph_expression:
     (additive_expression)+ (connector function)*;
 
+metric:
+    METRIC LPAREN field_list (COMMA field_list)* (COMMA (relative_time_literal|relative_time_array))? RPAREN;
+
 log:
     LOG LPAREN index_specifier (COMMA field_list)+ RPAREN;
 
@@ -20,9 +23,6 @@ field_list:
 
 connector:
     PIPE | COPY_PIPE | AMP;
-
-metric:
-    METRIC LPAREN (string_array|string_literal) COMMA (string_array|string_literal) COMMA (string_array|string_literal) (COMMA (relative_time_literal|relative_time_array))? RPAREN;
 
 string_array:
     LBRACKET string_literal (COMMA string_literal)* RBRACKET;

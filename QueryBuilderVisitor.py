@@ -81,6 +81,26 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
         return ret
 
+    # Visit a parse tree produced by MetrinkParser#metric.
+    def visitMetric(self, ctx: MetrinkParser.MetricContext):
+        field_lists = dict()
+
+        # do all but the last in case we get an overlay
+        for child in ctx.children[2:-2]:
+            res = self.visit(child)
+
+            if len(res) == 2:  # skip commas
+                field_lists[res[0]] = res[1]
+
+        res = self.visit(ctx.children[-2])
+
+        if isinstance(res, list):  # see if we have a time, or another tag
+            field_lists[res[0]] = res[1]
+
+        ret.append(MetricFunction(host, group, name))
+
+        return ret
+
     # Visit a parse tree produced by MetrinkParser#log.
     def visitLog(self, ctx:MetrinkParser.LogContext):
         indices = self.visit(ctx.children[2])
@@ -90,7 +110,7 @@ class QueryBuilderVisitor(MetrinkVisitor):
         for child in ctx.children[4:-1]:
             res = self.visit(child)
 
-            if len(res) == 2:
+            if len(res) == 2:  # skip commas
                 field_lists[res[0]] = res[1]
 
         return LogFunction(indices, field_lists)
@@ -117,31 +137,6 @@ class QueryBuilderVisitor(MetrinkVisitor):
     # Visit a parse tree produced by MetrinkParser#connector.
     def visitConnector(self, ctx: MetrinkParser.ConnectorContext):
         return self.visitChildren(ctx) # this just grabs the character
-
-    # Visit a parse tree produced by MetrinkParser#metric.
-    def visitMetric(self, ctx: MetrinkParser.MetricContext):
-        # 8 or 10 children depending upon if we have a time layover
-        # don't care about the first two
-        host = self.visit(ctx.children[2])
-        group = self.visit(ctx.children[4])
-        name = self.visit(ctx.children[6])
-
-        # convert everything to an array
-        hosts = host if isinstance(host, list) else (host, )
-        groups = group if isinstance(group, list) else (group, )
-        names = name if isinstance(name, list) else (name, )
-
-        if len(ctx.children) == 10:
-            raise NotImplementedError('Time overlays are not yet implemented')
-
-        ret = []
-
-        for host in hosts:
-            for group in groups:
-                for name in names:
-                    ret.append(MetricFunction(host, group, name))
-
-        return ret
 
     # Visit a parse tree produced by MetrinkParser#string_array.
     def visitString_array(self, ctx: MetrinkParser.String_arrayContext):

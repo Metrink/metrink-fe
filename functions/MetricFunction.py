@@ -10,11 +10,10 @@ from readers.Zabbix import Zabbix
 
 
 class MetricFunction(QueryFunction):
-    def __init__(self, host:str, group:str, metric:str):
-        super().__init__('metric', (host, group, metric))
-        self.host = str(host)
-        self.group = str(group)
-        self.metric = str(metric)
+    def __init__(self, fields, overlay=None):
+        super().__init__('metric', (fields, overlay))
+        self.fields = fields
+        self.overlay = overlay
         self.reader = Zabbix()
 
     def process(self, start_time:datetime, end_time:datetime, input:DataFrame):
@@ -23,7 +22,7 @@ class MetricFunction(QueryFunction):
         data = []
 
         # expand the hosts and groups
-        metric_list = self.reader.filter_metrics(self.host, self.group, self.metric)
+        metric_list = self.reader.filter_metrics(self.fields.get('host', None), self.fields.get('group', None), self.fields.get('metric', None))
 
         logger.debug('Got a list of %d metrics to pull from db' % (len(metric_list), ))
 

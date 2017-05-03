@@ -8,8 +8,8 @@ class MathFunction(QueryFunction):
         super().__init__(name, args)
 
     def process(self, start_time: datetime, end_time: datetime, input:DataFrame):
-        if str(self._name) not in '+-*/':
-            raise ValueError("Unknown math function: " + str(self._name))
+        if str(self.name) not in '+-*/':
+            raise ValueError("Unknown math function: " + str(self.name))
 
         ret = DataFrame()
 
@@ -20,19 +20,19 @@ class MathFunction(QueryFunction):
 
             for l_col in left.columns:
                 for r_col in right.columns:
-                    if self._name == '+':
+                    if self.name == '+':
                         t = left[l_col] + right[r_col]
-                    elif self._name == '-':
+                    elif self.name == '-':
                         t = left[l_col] - right[r_col]
-                    elif self._name == '*':
+                    elif self.name == '*':
                         t = left[l_col] * right[r_col]
-                    elif self._name == '/':
+                    elif self.name == '/':
                         t = left[l_col] / right[r_col]
                     else:
-                        raise ValueError("Unknown operator: " + str(self._name))
+                        raise ValueError("Unknown operator: " + str(self.name))
 
                     t = DataFrame(t)
-                    t.columns = [l_col + self._name + r_col]
+                    t.columns = [l_col + self.name + r_col]
 
                     print(left.head())
                     print(right.head())

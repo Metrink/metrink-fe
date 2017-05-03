@@ -13,7 +13,7 @@ metric:
     METRIC LPAREN field_list (COMMA field_list)* (COMMA (relative_time_literal|relative_time_array))? RPAREN;
 
 log:
-    LOG LPAREN index_specifier (COMMA field_list)+ RPAREN;
+    LOG LPAREN index_specifier (COMMA field_list)* RPAREN;
 
 index_specifier:
     INDEX EQUAL (string_literal|string_array);

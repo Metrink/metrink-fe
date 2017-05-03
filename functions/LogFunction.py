@@ -16,7 +16,7 @@ class LogFunction(QueryFunction):
         self.client = Elasticsearch(host='10.40.109.166')
 
     def process(self, start_time:datetime, end_time:datetime, input:DataFrame):
-        logger.debug('Log request: index=%s fields=%s' % (str(self.indices), str(self.fields)))
+        logger.debug('Start: %s  End: %s  Log: index=%s fields=%s' % (start_time.isoformat(), end_time.isoformat(), str(self.indices), str(self.fields)))
 
         search = Search(using=self.client, index=self.indices[0])
         search = search.filter(Range(** {'@timestamp': {'gte': start_time.isoformat(), 'lte': end_time.isoformat()}}))

@@ -260,11 +260,17 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
         return delta
 
+    # Visit a parse tree produced by MetrinkParser#absolute_date_time_literal.
+    def visitAbsolute_date_time_literal(self, ctx:MetrinkParser.Absolute_date_time_literalContext):
+        date = self.visit(ctx.children[0])
+        time = self.visit(ctx.children[1])
+
+        return datetime.datetime(year=date.year, month=date.month, day=date.day, hour=time.hour, minute=time.minute)
+
     # Visit a parse tree produced by MetrinkParser#absolute_date_literal.
     def visitAbsolute_date_literal(self, ctx: MetrinkParser.Absolute_date_literalContext):
         self.visitChildren(ctx)
 
-        print("PARSING: " + ctx.getText())
         return parser.parse(ctx.getText())
 
     # Visit a parse tree produced by MetrinkParser#absolute_time_literal.

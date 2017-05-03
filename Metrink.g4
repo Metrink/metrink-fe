@@ -145,7 +145,7 @@ FALSE:
     'false'|'FALSE';
 
 IDENTIFIER:
-    [a-zA-Z][a-zA-Z0-9_]*;
+    [a-zA-Z][a-zA-Z0-9_\.]*;
 
 POSITIVE_INTEGER_LITERAL:
     [0-9]+;

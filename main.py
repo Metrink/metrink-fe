@@ -37,17 +37,20 @@ def root():
 @app.route('/graph', methods=['GET'])
 def graph():
     query = request.args.get('q', None)
+    _render = request.args.get('render', 'True')
+    _render = False if _render == 'False' else True
+
     logger.debug('QUERY: ' + query)
 
-    start = datetime.now()
+    start_timer = datetime.now()
 
-    if query is not None:
+    if query is not None and _render:
         start, end, expressions, data_frame = parse_query(query)
 
-        if expressions[0]._name == 'metric':
+        if expressions[0].name == 'metric':
             chart = generate_graph(query, start, end, data_frame)
             table = ''
-        elif expressions[0]._name == 'log':
+        elif expressions[0].name == 'log':
             chart = '{}'
             table = generate_table(start, end, data_frame)
         else:
@@ -57,20 +60,25 @@ def graph():
     else:
         chart = "{}"
         table = ''
-        query = ''
+        # query = ''
 
-    end = datetime.now()
+    end_timer = datetime.now()
 
-    logger.debug('Took %ds to process this request' % (end-start).total_seconds())
+    logger.debug('Took %0.02fs to process this request' % (end_timer-start_timer).total_seconds())
 
     return render('graph.html', 'Graph', chart=chart, table=table, q=query)
 
 
 @app.route('/explore')
 def explore():
+    start_timer = datetime.now()
+
     ee = Elasticsearch()
 
     indexes = ee.get_indexes()
+
+    end_timer = datetime.now()
+    logger.debug('Took %0.02fs to process this request' % (end_timer-start_timer).total_seconds())
 
     return render(ee.get_template(), 'Explore', table_data=dumps(indexes))
 

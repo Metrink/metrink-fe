@@ -60,9 +60,6 @@ def parse_query(query:str) -> (str,str,list,DataFrame):
     # run the first function and get the DataFrame
     last_frame = expressions[0].process(start, end, DataFrame())
 
-    logger.debug('FIRST:')
-    logger.debug("\n" + str(last_frame.head()))
-
     # go through all the other functions
     for i in range(1, len(expressions), 2):
         conn = expressions[i]

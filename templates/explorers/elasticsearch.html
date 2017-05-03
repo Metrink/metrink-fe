@@ -10,6 +10,17 @@
   overflow-y: auto;
 }
 </style>
+
+<style>
+td.details-control {
+    background: url('{{url_for('static', filename='img/details_open.png')}}') no-repeat center center;
+    cursor: pointer;
+}
+
+tr.shown td.details-control {
+    background: url('{{url_for('static', filename='img/details_close.png')}}') no-repeat center center;
+}
+</style>
 {% endblock %}
 
 
@@ -79,25 +90,66 @@ $(function() {
 <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/dataTables.bootstrap.js"></script>
 
 <script>
+function format(d) {
+    // 'd' is the original data object for the row
+    var ret = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+
+    for(i=0; i < d.fields.length; i++) {
+        var url = encodeURIComponent('-1h l(index="' + d.index + '", ' + d.fields[i] + '=)');
+
+        ret += '<tr><td>';
+        ret += '<a target="_blank" href="/graph?render=False&q=' + url + '">' + d.fields[i] + '</a>';
+        ret += '</td></tr>';
+    }
+
+    return ret + '</table>';
+}
+
 $(function() {
-    $('#data_table').DataTable({
+    var table = $('#data_table').DataTable({
         data: {{table_data|safe}},
         columns: [
-            {render: function(data, type, full, meta) {
+            {
+                render: function(data, type, full, meta) {
                     var url = encodeURIComponent('-1h l(index="' + full.index + '")');
-                    return '<a href="/graph?q=' + url + '"><i class="fa fa-line-chart"></i></a>';
-                }
+                    return '<a target="_blank" href="/graph?render=False&q=' + url + '"><i class="fa fa-line-chart"></i></a>';
+                },
+                orderable: false,
+            },
+            {
+                className: 'details-control',
+                orderable: false,
+                data: null,
+                defaultContent: ''
             },
             {data: 'index', title: 'Index'},
-            {data: 'alias', title: 'Alias'},
             {data: 'created', title: 'Created'},
-            {data: 'fields', title: 'Fields'},
         ],
         pageLength: 25,
         searching: false,
         /* order: [[0, "asc"],[2, "asc"]], */
         initComplete: function(settings, json) { $('#loader').hide(); }
     });
+
+    $('#data_table tbody').on('click', 'td.details-control', function() {
+        var tr = $(this).closest('tr');
+        var row = table.row( tr );
+
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            row.child( format(row.data()) ).show();
+            tr.addClass('shown');
+        }
+    });
+
 });
+
+
+
 </script>
 {% endblock %}

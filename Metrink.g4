@@ -19,13 +19,10 @@ index_specifier:
     INDEX EQUAL (string_literal|string_array);
 
 field_list:
-    IDENTIFIER EQUAL (string_literal|string_literal);
+    IDENTIFIER EQUAL (string_literal|string_array|number_literal);
 
 connector:
     PIPE | COPY_PIPE | AMP;
-
-string_array:
-    LBRACKET string_literal (COMMA string_literal)* RBRACKET;
 
 function:
     IDENTIFIER ( argument_list )?;
@@ -41,6 +38,9 @@ additive_expression:
 
 multiplicative_expression:
     (number_literal|metric|function) ( (MUL|DIV) multiplicative_expression )?;
+
+number_array:
+    LBRACKET number_literal (COMMA number_literal)* RBRACKET;
 
 number_literal:
     integer_literal | FLOATING_POINT_LITERAL;
@@ -68,6 +68,9 @@ percent_literal:
 
 boolean_literal:
     TRUE | FALSE;
+
+string_array:
+    LBRACKET string_literal (COMMA string_literal)* RBRACKET;
 
 string_literal:
     STRING_LITERAL;
@@ -145,7 +148,7 @@ FALSE:
     'false'|'FALSE';
 
 IDENTIFIER:
-    [a-zA-Z][a-zA-Z0-9_\.]*;
+    [a-zA-Z][a-zA-Z0-9_.]*;
 
 POSITIVE_INTEGER_LITERAL:
     [0-9]+;
@@ -157,7 +160,7 @@ STRING_LITERAL:
    QUOTE SCharSequence? QUOTE;
 
 QUOTE:
-    ('\"'|'\'') -> channel(HIDDEN);
+    ('"'|'\'') -> channel(HIDDEN);
 
 WS:
     [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines

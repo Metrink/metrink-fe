@@ -1,3 +1,6 @@
+vagrant/*.log
+vagrant/.vagrant/*
+
 .idea/*
 *.bak
 parser/*

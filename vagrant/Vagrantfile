@@ -1,0 +1,38 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.box_version = "20170618.0.0"
+  config.vm.box_check_update = false
+
+  config.vm.network "forwarded_port", guest: 6379, host: 6379 # redis
+  config.vm.network "forwarded_port", guest: 9042, host: 9042 # Cassandra
+
+#  config.vm.synced_folder "data", "/vagrant_data"
+
+  config.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.name = 'Metrink Test'
+      vb.memory = "4096"
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+      apt-get update
+      apt-get install -y openjdk-8-jre-headless
+      apt-get install -y build-essential
+
+      wget --quiet 'http://download.redis.io/releases/redis-3.2.9.tar.gz'
+      tar -zxf redis-3.2.9.tar.gz
+      cd redis-3.2.9
+      make
+      mv redis.conf redis.dist
+      cp /vagrant/redis.conf redis.conf
+      /home/ubuntu/redis-3.2.9/src/redis-server /home/ubuntu/redis-3.2.9/redis.conf --daemonize yes
+
+      cd ..
+      wget --quiet 'http://www-us.apache.org/dist/cassandra/3.0.13/apache-cassandra-3.0.13-bin.tar.gz'
+      tar -zxf apache-cassandra-3.0.13-bin.tar.gz
+      cd apache-cassandra-3.0.13
+      mv conf/cassandra.yaml conf/cassandra.yaml.dist
+      cp /vagrant/cassandra.yaml conf/cassandra.yaml
+      bin/cassandra 
+  SHELL
+end

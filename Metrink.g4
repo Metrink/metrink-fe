@@ -1,19 +1,28 @@
 grammar Metrink;
 
-graph_query:
-    (relative_time_literal | absolute_date_time_literal | absolute_time_literal) ('to' (absolute_date_time_literal | absolute_time_literal) )? graph_expression;
+metrink_query:
+    (relative_time_literal | absolute_date_time_literal | absolute_time_literal) ('to' (absolute_date_time_literal | absolute_time_literal) )? (graph_expression | log_expression);
+
+log_expression:
+    (log)+ (connector function)*;
 
 graph_expression:
     (additive_expression)+ (connector function)*;
 
+metric:
+    METRIC LPAREN field_list (COMMA field_list)* (COMMA (relative_time_literal|relative_time_array))? RPAREN;
+
+log:
+    LOG LPAREN index_specifier (COMMA field_list)* RPAREN;
+
+index_specifier:
+    INDEX EQUAL (string_literal|string_array);
+
+field_list:
+    IDENTIFIER EQUAL (string_literal|string_array|number_literal);
+
 connector:
     PIPE | COPY_PIPE | AMP;
-
-metric:
-    METRIC LPAREN (string_array|string_literal) COMMA (string_array|string_literal) COMMA (string_array|string_literal) (COMMA (relative_time_literal|relative_time_array))? RPAREN;
-
-string_array:
-    LBRACKET string_literal (COMMA string_literal)* RBRACKET;
 
 function:
     IDENTIFIER ( argument_list )?;
@@ -29,6 +38,9 @@ additive_expression:
 
 multiplicative_expression:
     (number_literal|metric|function) ( (MUL|DIV) multiplicative_expression )?;
+
+number_array:
+    LBRACKET number_literal (COMMA number_literal)* RBRACKET;
 
 number_literal:
     integer_literal | FLOATING_POINT_LITERAL;
@@ -57,6 +69,9 @@ percent_literal:
 boolean_literal:
     TRUE | FALSE;
 
+string_array:
+    LBRACKET string_literal (COMMA string_literal)* RBRACKET;
+
 string_literal:
     STRING_LITERAL;
 
@@ -75,6 +90,12 @@ AMP:
 METRIC:
     ('metric'|'m');
 
+LOG:
+    ('log'|'l');
+
+INDEX:
+    ('index'|'i');
+
 LPAREN:
     '(';
 
@@ -89,6 +110,9 @@ RBRACKET:
 
 COMMA:
     ',';
+
+EQUAL:
+    '=';
 
 PLUS:
     '+';
@@ -124,7 +148,7 @@ FALSE:
     'false'|'FALSE';
 
 IDENTIFIER:
-    [a-zA-Z][a-zA-Z0-9]*;
+    [a-zA-Z][a-zA-Z0-9_.]*;
 
 POSITIVE_INTEGER_LITERAL:
     [0-9]+;
@@ -136,7 +160,7 @@ STRING_LITERAL:
    QUOTE SCharSequence? QUOTE;
 
 QUOTE:
-    ('\"'|'\'') -> channel(HIDDEN);
+    ('"'|'\'') -> channel(HIDDEN);
 
 WS:
     [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines

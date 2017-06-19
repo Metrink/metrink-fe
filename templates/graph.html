@@ -1,10 +1,14 @@
 {% extends "_base.html" %}
 
+{% block css %}
+<link rel="stylesheet" href="//cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
+{% endblock %}
+
 {% block content %}
 
 <div class="row">
     <div class="col-sm-12 text-center">
-        <h2>Graph</h2>
+        <h2>Results</h2>
     </div>
 </div>
 
@@ -27,6 +31,12 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="col-sm-12">
+        <table id="table"></table>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block js %}
@@ -34,4 +44,11 @@
 <script type="text/javascript">
   new Highcharts.Chart({{chart|safe}});
 </script>
+
+<script src="//code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+    {{table|safe}}
+</script>
+
 {% endblock %}

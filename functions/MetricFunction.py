@@ -1,19 +1,20 @@
-from datetime import datetime, timedelta
+from datetime import datetime
+
 from pandas import DataFrame, read_sql
 from sqlalchemy import and_
 from sqlalchemy.sql import select
 
 from functions.QueryFunction import QueryFunction
 from logger import logger
-from zabbix import filter_metrics, engine, history_table, history_uint_table, resample_metrics
+from readers.Zabbix import Zabbix
 
 
 class MetricFunction(QueryFunction):
-    def __init__(self, host:str, group:str, metric:str):
-        super().__init__('metric', (host, group, metric))
-        self.host = str(host)
-        self.group = str(group)
-        self.metric = str(metric)
+    def __init__(self, fields, overlay=None):
+        super().__init__('metric', (fields, overlay))
+        self.fields = fields
+        self.overlay = overlay
+        self.reader = Zabbix()
 
     def process(self, start_time:datetime, end_time:datetime, input:DataFrame):
         cur_time = start_time
@@ -21,7 +22,7 @@ class MetricFunction(QueryFunction):
         data = []
 
         # expand the hosts and groups
-        metric_list = filter_metrics(self.host, self.group, self.metric)
+        metric_list = self.reader.filter_metrics(self.fields.get('host', None), self.fields.get('group', None), self.fields.get('metric', None))
 
         logger.debug('Got a list of %d metrics to pull from db' % (len(metric_list), ))
 
@@ -32,15 +33,15 @@ class MetricFunction(QueryFunction):
             logger.debug('VALUE TYPE: ' + str(metric['value_type']))
 
             if metric['value_type'] == 0:
-                cond = and_(history_table.c.itemid == metric['itemid'], history_table.c.clock > int(start_time.timestamp()))
-                cond = and_(cond, history_table.c.clock < int(end_time.timestamp()))
+                cond = and_(self.reader.history_table.c.itemid == metric['itemid'], self.reader.history_table.c.clock > int(start_time.timestamp()))
+                cond = and_(cond, self.reader.history_table.c.clock < int(end_time.timestamp()))
 
-                data = read_sql(select([history_table.c.clock, history_table.c.value]).where(cond), engine, parse_dates=('clock', ), index_col='clock')
+                data = read_sql(select([self.reader.history_table.c.clock, self.reader.history_table.c.value]).where(cond), self.reader.engine, parse_dates=('clock', ), index_col='clock')
             elif metric['value_type'] == 3:
-                cond = and_(history_uint_table.c.itemid == metric['itemid'], history_uint_table.c.clock > int(start_time.timestamp()))
-                cond = and_(cond, history_uint_table.c.clock < int(end_time.timestamp()))
+                cond = and_(self.reader.history_uint_table.c.itemid == metric['itemid'], self.reader.history_uint_table.c.clock > int(start_time.timestamp()))
+                cond = and_(cond, self.reader.history_uint_table.c.clock < int(end_time.timestamp()))
 
-                data = read_sql(select([history_uint_table.c.clock, history_uint_table.c.value]).where(cond), engine, parse_dates=('clock', ), index_col='clock')
+                data = read_sql(select([self.reader.history_uint_table.c.clock, self.reader.history_uint_table.c.value]).where(cond), self.reader.engine, parse_dates=('clock', ), index_col='clock')
             else:
                 raise ValueError('Unknown value type: ' + str(metric['value_type']))
 
@@ -51,7 +52,7 @@ class MetricFunction(QueryFunction):
             ret = ret.combine_first(data)
 
         # resample data
-        ret = resample_metrics(ret, start_time, end_time)
+        ret = self.reader.resample_metrics(ret, start_time, end_time)
 
         return ret
 

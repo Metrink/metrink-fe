@@ -24,10 +24,14 @@ class MyErrorListener(ErrorListener):
 
 
 if __name__ == '__main__':
-    with open('valid_queries.txt', 'r') as f:
+    with open('./test/valid_queries.txt', 'r') as f:
         for l in f:
             l = l.rstrip()
+
             if len(l) < 2:
+                continue
+
+            if l.startswith('#'):
                 continue
 
             istream = InputStream(l)
@@ -39,16 +43,16 @@ if __name__ == '__main__':
             print()
             print('INPUT: ' + l)
 
-            for token in stream.tokens:
-                if token.text != '<EOF>':
-                    print("%s: %s" % (token.text, MetrinkLexer.symbolicNames[token.type-1]))
+            # for token in stream.tokens:
+            #     if token.text != '<EOF>':
+            #         print("%s: %s" % (token.text, MetrinkLexer.symbolicNames[token.type-1]))
 
             parser = MetrinkParser(stream)
 
             parser.removeErrorListeners()
             parser.addErrorListener(MyErrorListener(l))
 
-            tree = parser.graph_query()
+            tree = parser.metrink_query()
 
             visitor = QueryBuilderVisitor()
             (start, end, expression) = visitor.visit(tree)

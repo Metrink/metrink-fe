@@ -3,12 +3,12 @@ from antlr4.error.ErrorListener import ErrorListener
 from pandas import DataFrame
 from pandas_highcharts.core import serialize
 
+from QueryBuilderVisitor import QueryBuilderVisitor
+from functions.QueryFunction import QueryFunction
 from logger import logger
 from parser.MetrinkLexer import MetrinkLexer
 from parser.MetrinkParser import MetrinkParser
-from QueryBuilderVisitor import QueryBuilderVisitor
-from functions.QueryFunction import QueryFunction
-from zabbix import resample_metrics
+from readers.Zabbix import Zabbix
 
 
 class MyErrorListener(ErrorListener):
@@ -24,13 +24,23 @@ class MyErrorListener(ErrorListener):
         print(str(startIndex) + " to " + str(stopIndex))
 
 
-def generate_graph(query, chart_div='graph'):
+def parse_query(query:str) -> (str,str,list,DataFrame):
+    """
+    Processes a query and returns the start, end, and QueryFunction
+    :param query: the string to parse as a query
+    :return: the start, end, expression, and QueryFunction
+    """
     istream = InputStream(query)
     lexer = MetrinkLexer(istream)
     stream = CommonTokenStream(lexer)
 
     # fill the token stream
     stream.fill()
+
+    for token in stream.tokens:
+        if token.text != '<EOF>':
+            print("%s: %s" % (token.text, MetrinkLexer.symbolicNames[token.type-1]))
+
 
     # create a parser
     parser = MetrinkParser(stream)
@@ -40,22 +50,20 @@ def generate_graph(query, chart_div='graph'):
     parser.addErrorListener(MyErrorListener(query))
 
     # construct the AST
-    tree = parser.graph_query()
+    tree = parser.metrink_query()
 
     # walk the AST to get our start, end, and expression
     visitor = QueryBuilderVisitor()
-    (start, end, expression) = visitor.visit(tree)
+
+    start, end, expressions = visitor.visit(tree)
 
     # run the first function and get the DataFrame
-    last_frame = expression[0].process(start, end, DataFrame())
-
-    logger.debug('FIRST:')
-    logger.debug("\n" + str(last_frame.head()))
+    last_frame = expressions[0].process(start, end, DataFrame())
 
     # go through all the other functions
-    for i in range(1, len(expression), 2):
-        conn = expression[i]
-        fun = expression[i + 1]
+    for i in range(1, len(expressions), 2):
+        conn = expressions[i]
+        fun = expressions[i + 1]
 
         if not isinstance(fun, QueryFunction):
             raise ValueError('NON-QUERY FUNCTION: ' + str(fun))
@@ -72,13 +80,38 @@ def generate_graph(query, chart_div='graph'):
 
         i += 2
 
-    # resample to fill in anything that might be missing
-    last_frame = resample_metrics(last_frame, start, end)
+    return start, end, expressions, last_frame
 
-    print(last_frame.head())
+
+def generate_table(start, end, data_frame, table_div='table'):
+    data_set = 'var dataSet = [\n'
+
+    for row in data_frame.iterrows():
+        data_set += '[' + ',\n'.join(map(lambda c: '"' + c.replace('"', '\\"').replace('/', '\/') + '"', row[1].values)) + '],\n'
+
+    data_set += '];'
+
+    columns = '[' + ',\n'.join(map(lambda h: '{ title: "' + h.replace('"', '\\"').replace('/', '\/') + '"}', data_frame.columns.values)) + ']'
+
+    function = """
+        $(document).ready(function() {
+            $('#%s').DataTable({
+                data: dataSet,
+                columns: %s
+            });
+        });""" % (table_div, columns)
+
+    return data_set + '\n\n' + function
+
+
+def generate_graph(title, start, end, data_frame, chart_div='graph'):
+    # resample to fill in anything that might be missing
+    data_frame = Zabbix.resample_metrics(data_frame, start, end)
+
+    print(data_frame.head())
 
     # (rows, cols) = last_frame.shape
     # logger.debug('Data Frame size: %d x %d' % (rows, cols))
 
     # return the chart for rendering with HighCharts
-    return serialize(last_frame, render_to=chart_div, output_type='json', title=query)
+    return serialize(data_frame, render_to=chart_div, output_type='json', title=title)

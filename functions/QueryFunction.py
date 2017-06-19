@@ -1,13 +1,14 @@
 from datetime import datetime
 from pandas import DataFrame
 
+
 class QueryFunction:
     def __init__(self, name, args):
-        self._name = name
+        self.name = name
         self._args = args
 
     def __str__(self):
-        return self._name + str(self._args)
+        return self.name + str(self._args)
 
     def process(self, start_time:datetime, end_time:datetime, input:DataFrame):
         """

@@ -6,3 +6,5 @@ flask
 sqlalchemy
 python3-memcached
 PyYAML
+elasticsearch-dsl>=5.0.0,<6.0.0
+hawkular-client

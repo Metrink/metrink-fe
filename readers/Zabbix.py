@@ -7,10 +7,10 @@ import re
 import yaml
 
 from logger import logger
-from readers.Reader import MetricReader
+from readers.Reader import Reader
 
 
-class Zabbix(MetricReader):
+class Zabbix(Reader):
     def __init__(self):
         super().__init__()
 

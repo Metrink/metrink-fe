@@ -1,7 +1,4 @@
-grammar Metrink;
-
-metrink_query:
-    (relative_time_literal | absolute_date_time_literal | absolute_time_literal) ('to' (absolute_date_time_literal | absolute_time_literal) )? (graph_expression | log_expression | event_expression);
+grammar MetrinkBase;
 
 log_expression:
     (log)+ (connector function)*;
@@ -84,6 +81,12 @@ string_literal:
 /*
  * TOKENS
  */
+DO:
+    'DO';
+
+FOR:
+    'FOR';
+
 PIPE:
     '|';
 

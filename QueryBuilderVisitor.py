@@ -5,13 +5,13 @@ from functions import QUERY_FUNCTIONS
 from functions.MathFunction import MathFunction
 from functions.MetricFunction import MetricFunction
 from functions.LogFunction import LogFunction
+from functions.EventFunction import EventFunction
 
 from dateutil import parser
 import datetime
 
 
 class QueryBuilderVisitor(MetrinkVisitor):
-
     # Visit a parse tree produced by MetrinkParser#metrink_query.
     def visitMetrink_query(self, ctx:MetrinkParser.Metrink_queryContext):
         start_time = self.visit(ctx.children[0])
@@ -42,6 +42,10 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
     # Visit a parse tree produced by MetrinkParser#log_expression.
     def visitLog_expression(self, ctx:MetrinkParser.Log_expressionContext):
+        return self.__visit_expression(ctx.children)
+
+    # Visit a parse tree produced by MetrinkParser#event_expression.
+    def visitEvent_expression(self, ctx:MetrinkParser.Event_expressionContext):
         return self.__visit_expression(ctx.children)
 
     # Visit a parse tree produced by MetrinkParser#graph_expression.
@@ -83,46 +87,44 @@ class QueryBuilderVisitor(MetrinkVisitor):
 
     # Visit a parse tree produced by MetrinkParser#metric.
     def visitMetric(self, ctx: MetrinkParser.MetricContext):
-        field_lists = dict()
+        field_lists = self._collect_fields(ctx.children)
+        overlay = None
 
-        # do all but the last in case we get an overlay
-        for child in ctx.children[2:-2]:
-            res = self.visit(child)
+        # check to see if we have a time overlay
+        if len(field_lists) != len(ctx.children)-3:
+            overlay = self.visit(ctx.children[-2])
 
-            if len(res) == 2:  # skip commas
-                field_lists[res[0]] = res[1]
-
-        res = self.visit(ctx.children[-2])
-
-        if isinstance(res, list):  # see if we have a time, or another tag
-            field_lists[res[0]] = res[1]
-
-        ret.append(MetricFunction(host, group, name))
-
-        return ret
+        return MetricFunction(field_lists, overlay)
 
     # Visit a parse tree produced by MetrinkParser#log.
     def visitLog(self, ctx:MetrinkParser.LogContext):
-        indices = self.visit(ctx.children[2])
+        field_lists = self._collect_fields(ctx.children)
 
+        if 'index' not in field_lists:
+            raise ValueError('Log must include a field named index')
+
+        return LogFunction(field_lists['index'], field_lists)
+
+    # Visit a parse tree produced by MetrinkParser#event.
+    def visitEvent(self, ctx:MetrinkParser.EventContext):
+        field_lists = self._collect_fields(ctx.children)
+
+        return EventFunction(field_lists)
+
+    def _collect_fields(self, children):
         field_lists = dict()
 
-        for child in ctx.children[4:-1]:
+        for child in children[2:]:
             res = self.visit(child)
 
-            if len(res) == 2:  # skip commas
+            if isinstance(res, list) and len(res) == 2:
+                if res[0] in field_lists:  # cannot have duplicate field names; messes up metric parsing above
+                    raise ValueError('Duplicate field found: ' + str(res[0]))
+
                 field_lists[res[0]] = res[1]
 
-        return LogFunction(indices, field_lists)
+        return field_lists
 
-    # Visit a parse tree produced by MetrinkParser#index_specifier.
-    def visitIndex_specifier(self, ctx:MetrinkParser.Index_specifierContext):
-        index_list = self.visit(ctx.children[2])
-
-        # always force it into a list
-        index_list = [index_list] if not isinstance(index_list, list) else index_list
-
-        return index_list
 
     # Visit a parse tree produced by MetrinkParser#field_list.
     def visitField_list(self, ctx:MetrinkParser.Field_listContext):
@@ -293,11 +295,17 @@ class QueryBuilderVisitor(MetrinkVisitor):
         else:
             return False
 
+        # Visit a parse tree produced by MetrinkParser#regex_literal.
+    def visitRegex_literal(self, ctx: MetrinkParser.Regex_literalContext):
+        self.visitChildren(ctx)
+
+        regex_lit = ctx.getText()[1:-1]  # chop off the brances
+
     # Visit a parse tree produced by MetrinkParser#string_literal.
     def visitString_literal(self, ctx: MetrinkParser.String_literalContext):
         self.visitChildren(ctx)
 
-        str_lit = ctx.getText()[1:-1] # chop off the quotes
+        str_lit = ctx.getText()[1:-1]  # chop off the quotes
 
         return str_lit
 

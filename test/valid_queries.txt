@@ -1,3 +1,5 @@
+-1d metric(f1: 'blah', f2: ['a', 'b'], f3: {b*h})
+
 # Log queries
 
 -1d log(index: ['bob','sally'], f1_something: ['f2','f3'], f2: 'blah')

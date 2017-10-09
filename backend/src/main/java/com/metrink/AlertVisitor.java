@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+import com.metrink.function.EventFunction;
+import com.metrink.function.LogFunction;
 import com.metrink.parser.MetrinkBackendParser.Absolute_date_literalContext;
 import com.metrink.parser.MetrinkBackendParser.Absolute_date_time_literalContext;
 import com.metrink.parser.MetrinkBackendParser.Absolute_time_literalContext;
@@ -64,17 +66,11 @@ public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements Me
     }
 
     public Object visitLog(final LogContext ctx) {
-        // TODO Auto-generated method stub
-        return null;
+        return new LogFunction((Map<String, List<Object>>) this.visit(ctx.children.get(2)));
     }
 
     public Object visitEvent(final EventContext ctx) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    private void collectFields(final Field_listContext ctx) {
-
+        return new EventFunction((Map<String, List<Object>>) this.visit(ctx.children.get(2)));
     }
 
     public Object visitField_list(final Field_listContext ctx) {

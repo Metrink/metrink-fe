@@ -1,3 +1,5 @@
+import re
+
 from parser.MetrinkVisitor import MetrinkVisitor
 from parser.MetrinkParser import MetrinkParser
 
@@ -91,7 +93,9 @@ class QueryBuilderVisitor(MetrinkVisitor):
         overlay = None
 
         # check to see if we have a time overlay
-        if len(field_lists) != len(ctx.children)-3:
+        # multiply by 2 for the commas, but have to remove one
+        # minus 3 for the children for: metric + ( + )
+        if len(field_lists)*2 - 1 != len(ctx.children)-3:
             overlay = self.visit(ctx.children[-2])
 
         return MetricFunction(field_lists, overlay)
@@ -117,7 +121,7 @@ class QueryBuilderVisitor(MetrinkVisitor):
         for child in children[2:]:
             res = self.visit(child)
 
-            if isinstance(res, list) and len(res) == 2:
+            if isinstance(res, tuple) and len(res) == 2:
                 if res[0] in field_lists:  # cannot have duplicate field names; messes up metric parsing above
                     raise ValueError('Duplicate field found: ' + str(res[0]))
 
@@ -300,6 +304,8 @@ class QueryBuilderVisitor(MetrinkVisitor):
         self.visitChildren(ctx)
 
         regex_lit = ctx.getText()[1:-1]  # chop off the brances
+
+        return re.compile(regex_lit)
 
     # Visit a parse tree produced by MetrinkParser#string_literal.
     def visitString_literal(self, ctx: MetrinkParser.String_literalContext):

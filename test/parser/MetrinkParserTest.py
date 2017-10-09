@@ -9,6 +9,7 @@ from parser.MetrinkParser import MetrinkParser
 
 class MyErrorListener(ErrorListener, unittest.TestCase):
     def __init__(self, input):
+        super().__init__()
         self.input = input
 
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):

@@ -1,10 +1,13 @@
 grammar Metrink;
 
 metrink_query:
-    (relative_time_literal | absolute_date_time_literal | absolute_time_literal) ('to' (absolute_date_time_literal | absolute_time_literal) )? (graph_expression | log_expression);
+    (relative_time_literal | absolute_date_time_literal | absolute_time_literal) ('to' (absolute_date_time_literal | absolute_time_literal) )? (graph_expression | log_expression | event_expression);
 
 log_expression:
     (log)+ (connector function)*;
+
+event_expression:
+    (event)+ (connector function)*;
 
 graph_expression:
     (additive_expression)+ (connector function)*;
@@ -13,13 +16,13 @@ metric:
     METRIC LPAREN field_list (COMMA field_list)* (COMMA (relative_time_literal|relative_time_array))? RPAREN;
 
 log:
-    LOG LPAREN index_specifier (COMMA field_list)* RPAREN;
+    LOG LPAREN field_list (COMMA field_list)* RPAREN;
 
-index_specifier:
-    INDEX EQUAL (string_literal|string_array);
+event:
+    EVENT LPAREN field_list (COMMA field_list)* RPAREN;
 
 field_list:
-    IDENTIFIER EQUAL (string_literal|string_array|number_literal);
+    IDENTIFIER COLON (string_literal|string_array|number_literal|regex_literal);
 
 connector:
     PIPE | COPY_PIPE | AMP;
@@ -72,6 +75,9 @@ boolean_literal:
 string_array:
     LBRACKET string_literal (COMMA string_literal)* RBRACKET;
 
+regex_literal:
+    REGEX_LITERAL;
+
 string_literal:
     STRING_LITERAL;
 
@@ -93,8 +99,8 @@ METRIC:
 LOG:
     ('log'|'l');
 
-INDEX:
-    ('index'|'i');
+EVENT:
+    ('log'|'l');
 
 LPAREN:
     '(';
@@ -107,6 +113,12 @@ LBRACKET:
 
 RBRACKET:
     ']';
+
+LBRACE:
+    '{';
+
+RBRACE:
+    '}';
 
 COMMA:
     ',';
@@ -155,6 +167,9 @@ POSITIVE_INTEGER_LITERAL:
 
 FLOATING_POINT_LITERAL:
     '-'?(([0-9]+'.'[0-9]*)|('.'[0-9]+));
+
+REGEX_LITERAL:
+    LBRACE SCharSequence? RBRACE;
 
 STRING_LITERAL:
    QUOTE SCharSequence? QUOTE;

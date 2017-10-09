@@ -3,7 +3,7 @@ backend/.settings
 vagrant/*.log
 vagrant/.vagrant/*
 
-frontend/.idea/*
+.idea/*
 *.bak
 frontend/parser/*
 config.yaml

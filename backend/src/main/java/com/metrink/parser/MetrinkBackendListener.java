@@ -38,36 +38,6 @@ public interface MetrinkBackendListener extends ParseTreeListener {
 	 */
 	void exitComparitor(MetrinkBackendParser.ComparitorContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MetrinkBackendParser#log_expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterLog_expression(MetrinkBackendParser.Log_expressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MetrinkBackendParser#log_expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitLog_expression(MetrinkBackendParser.Log_expressionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link MetrinkBackendParser#event_expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterEvent_expression(MetrinkBackendParser.Event_expressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MetrinkBackendParser#event_expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitEvent_expression(MetrinkBackendParser.Event_expressionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link MetrinkBackendParser#graph_expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterGraph_expression(MetrinkBackendParser.Graph_expressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MetrinkBackendParser#graph_expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitGraph_expression(MetrinkBackendParser.Graph_expressionContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link MetrinkBackendParser#metric}.
 	 * @param ctx the parse tree
 	 */
@@ -108,65 +78,15 @@ public interface MetrinkBackendListener extends ParseTreeListener {
 	 */
 	void exitField_list(MetrinkBackendParser.Field_listContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MetrinkBackendParser#connector}.
+	 * Enter a parse tree produced by {@link MetrinkBackendParser#field}.
 	 * @param ctx the parse tree
 	 */
-	void enterConnector(MetrinkBackendParser.ConnectorContext ctx);
+	void enterField(MetrinkBackendParser.FieldContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link MetrinkBackendParser#connector}.
+	 * Exit a parse tree produced by {@link MetrinkBackendParser#field}.
 	 * @param ctx the parse tree
 	 */
-	void exitConnector(MetrinkBackendParser.ConnectorContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link MetrinkBackendParser#function}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunction(MetrinkBackendParser.FunctionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MetrinkBackendParser#function}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunction(MetrinkBackendParser.FunctionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link MetrinkBackendParser#argument_list}.
-	 * @param ctx the parse tree
-	 */
-	void enterArgument_list(MetrinkBackendParser.Argument_listContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MetrinkBackendParser#argument_list}.
-	 * @param ctx the parse tree
-	 */
-	void exitArgument_list(MetrinkBackendParser.Argument_listContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link MetrinkBackendParser#argument}.
-	 * @param ctx the parse tree
-	 */
-	void enterArgument(MetrinkBackendParser.ArgumentContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MetrinkBackendParser#argument}.
-	 * @param ctx the parse tree
-	 */
-	void exitArgument(MetrinkBackendParser.ArgumentContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link MetrinkBackendParser#additive_expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterAdditive_expression(MetrinkBackendParser.Additive_expressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MetrinkBackendParser#additive_expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitAdditive_expression(MetrinkBackendParser.Additive_expressionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link MetrinkBackendParser#multiplicative_expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterMultiplicative_expression(MetrinkBackendParser.Multiplicative_expressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MetrinkBackendParser#multiplicative_expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitMultiplicative_expression(MetrinkBackendParser.Multiplicative_expressionContext ctx);
+	void exitField(MetrinkBackendParser.FieldContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MetrinkBackendParser#number_array}.
 	 * @param ctx the parse tree
@@ -247,16 +167,6 @@ public interface MetrinkBackendListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitInteger_literal(MetrinkBackendParser.Integer_literalContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link MetrinkBackendParser#percent_literal}.
-	 * @param ctx the parse tree
-	 */
-	void enterPercent_literal(MetrinkBackendParser.Percent_literalContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MetrinkBackendParser#percent_literal}.
-	 * @param ctx the parse tree
-	 */
-	void exitPercent_literal(MetrinkBackendParser.Percent_literalContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MetrinkBackendParser#boolean_literal}.
 	 * @param ctx the parse tree

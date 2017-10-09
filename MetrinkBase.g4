@@ -1,43 +1,19 @@
 grammar MetrinkBase;
 
-log_expression:
-    (log)+ (connector function)*;
-
-event_expression:
-    (event)+ (connector function)*;
-
-graph_expression:
-    (additive_expression)+ (connector function)*;
-
 metric:
-    METRIC LPAREN field_list (COMMA field_list)* (COMMA (relative_time_literal|relative_time_array))? RPAREN;
+    METRIC LPAREN field_list (COMMA (relative_time_literal|relative_time_array))? RPAREN;
 
 log:
-    LOG LPAREN field_list (COMMA field_list)* RPAREN;
+    LOG LPAREN field_list RPAREN;
 
 event:
-    EVENT LPAREN field_list (COMMA field_list)* RPAREN;
+    EVENT LPAREN field_list RPAREN;
 
 field_list:
+    field (COMMA field)*;
+
+field:
     IDENTIFIER COLON (string_literal|string_array|number_literal|regex_literal);
-
-connector:
-    PIPE | COPY_PIPE | AMP;
-
-function:
-    IDENTIFIER ( argument_list )?;
-
-argument_list:
-    LPAREN argument (COMMA argument)* RPAREN;
-
-argument:
-    relative_time_literal | additive_expression | string_literal | percent_literal | boolean_literal;
-
-additive_expression:
-    multiplicative_expression ( (PLUS|MINUS) additive_expression )?;
-
-multiplicative_expression:
-    (number_literal|metric|function) ( (MUL|DIV) multiplicative_expression )?;
 
 number_array:
     LBRACKET number_literal (COMMA number_literal)* RBRACKET;
@@ -62,9 +38,6 @@ absolute_time_literal:
 
 integer_literal:
     MINUS? POSITIVE_INTEGER_LITERAL;
-
-percent_literal:
-    integer_literal REM;
 
 boolean_literal:
     TRUE | FALSE;

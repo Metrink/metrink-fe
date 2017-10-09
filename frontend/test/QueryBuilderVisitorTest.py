@@ -3,10 +3,10 @@ import unittest
 from antlr4 import InputStream, CommonTokenStream
 from antlr4.error.ErrorListener import ErrorListener
 
-from parser.MetrinkLexer import MetrinkLexer
-from parser.MetrinkParser import MetrinkParser
+from frontend.parser.MetrinkLexer import MetrinkLexer
+from frontend.parser.MetrinkParser import MetrinkParser
 
-from QueryBuilderVisitor import QueryBuilderVisitor
+from frontend.QueryBuilderVisitor import QueryBuilderVisitor
 
 
 class MyErrorListener(ErrorListener, unittest.TestCase):

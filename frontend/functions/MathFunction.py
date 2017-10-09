@@ -1,6 +1,7 @@
 from datetime import datetime
 from pandas import DataFrame
-from functions.QueryFunction import QueryFunction
+
+from frontend.functions.QueryFunction import QueryFunction
 
 
 class MathFunction(QueryFunction):

@@ -29,24 +29,6 @@ public interface MetrinkBackendVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitComparitor(MetrinkBackendParser.ComparitorContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link MetrinkBackendParser#log_expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLog_expression(MetrinkBackendParser.Log_expressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link MetrinkBackendParser#event_expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitEvent_expression(MetrinkBackendParser.Event_expressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link MetrinkBackendParser#graph_expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitGraph_expression(MetrinkBackendParser.Graph_expressionContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link MetrinkBackendParser#metric}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -71,41 +53,11 @@ public interface MetrinkBackendVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitField_list(MetrinkBackendParser.Field_listContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link MetrinkBackendParser#connector}.
+	 * Visit a parse tree produced by {@link MetrinkBackendParser#field}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitConnector(MetrinkBackendParser.ConnectorContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link MetrinkBackendParser#function}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFunction(MetrinkBackendParser.FunctionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link MetrinkBackendParser#argument_list}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArgument_list(MetrinkBackendParser.Argument_listContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link MetrinkBackendParser#argument}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArgument(MetrinkBackendParser.ArgumentContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link MetrinkBackendParser#additive_expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAdditive_expression(MetrinkBackendParser.Additive_expressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link MetrinkBackendParser#multiplicative_expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMultiplicative_expression(MetrinkBackendParser.Multiplicative_expressionContext ctx);
+	T visitField(MetrinkBackendParser.FieldContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link MetrinkBackendParser#number_array}.
 	 * @param ctx the parse tree
@@ -154,12 +106,6 @@ public interface MetrinkBackendVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitInteger_literal(MetrinkBackendParser.Integer_literalContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link MetrinkBackendParser#percent_literal}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPercent_literal(MetrinkBackendParser.Percent_literalContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link MetrinkBackendParser#boolean_literal}.
 	 * @param ctx the parse tree

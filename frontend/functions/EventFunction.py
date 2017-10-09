@@ -1,8 +1,8 @@
 from datetime import datetime
 from pandas import DataFrame
 
-from functions.QueryFunction import QueryFunction
-from logger import logger
+from frontend.functions.QueryFunction import QueryFunction
+from frontend.logger import logger
 
 
 class EventFunction(QueryFunction):

@@ -4,8 +4,8 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 from elasticsearch_dsl.query import Range
 
-from functions.QueryFunction import QueryFunction
-from logger import logger
+from frontend.functions.QueryFunction import QueryFunction
+from frontend.logger import logger
 
 
 class LogFunction(QueryFunction):

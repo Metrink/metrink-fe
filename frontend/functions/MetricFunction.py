@@ -4,8 +4,8 @@ from pandas import DataFrame, read_sql
 from sqlalchemy import and_
 from sqlalchemy.sql import select
 
-from functions.QueryFunction import QueryFunction
-from logger import logger
+from frontend.functions.QueryFunction import QueryFunction
+from frontend.logger import logger
 
 
 class MetricFunction(QueryFunction):

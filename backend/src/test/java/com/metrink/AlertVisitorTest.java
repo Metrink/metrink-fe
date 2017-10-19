@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.Token;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ public class AlertVisitorTest {
                 final String msg,
                 final RecognitionException e) {
             LOG.error("{}:{} {}", line, charPositionInLine, msg);
+            // LOG.error("ERROR:", e);
         }
     }
 
@@ -51,6 +53,15 @@ public class AlertVisitorTest {
                 final CodePointCharStream charStream = CharStreams.fromString(line);
                 final MetrinkBackendLexer lexer = new MetrinkBackendLexer(charStream);
                 final CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+
+                tokenStream.fill();
+
+                for (final Token token : tokenStream.getTokens()) {
+                    LOG.info("TOKEN: {} {}", token, lexer.getVocabulary().getSymbolicName(token.getType()));
+                }
+
+                tokenStream.seek(0);
+
                 final MetrinkBackendParser mbp = new MetrinkBackendParser(tokenStream);
 
                 mbp.removeErrorListeners();

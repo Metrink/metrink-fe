@@ -69,15 +69,6 @@ COPY_PIPE:
 AMP:
     '&';
 
-METRIC:
-    ('metric'|'m');
-
-LOG:
-    ('log'|'l');
-
-EVENT:
-    ('log'|'l');
-
 LPAREN:
     '(';
 
@@ -128,6 +119,16 @@ PM_INDICATOR:
 
 AM_INDICATOR:
     [aA][mM];
+
+// these, metric in particular, need to be below the other'm' definitions
+METRIC:
+    ('metric'|'m');
+
+LOG:
+    ('log'|'l');
+
+EVENT:
+    ('event'|'e');
 
 TRUE:
     'true'|'TRUE';

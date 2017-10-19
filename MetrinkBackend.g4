@@ -3,10 +3,7 @@ grammar MetrinkBackend;
 import MetrinkBase;
 
 metric_alert:
-    metric trigger_expression DO IDENTIFIER;
-
-trigger_expression:
-    comparitor number_literal FOR relative_time_literal;
+    metric comparitor number_literal (FOR relative_time_literal)? DO IDENTIFIER;
 
 comparitor:
     GT | GT_EQ | LT | LT_EQ | EQUAL | DB_EQ;
@@ -15,10 +12,10 @@ comparitor:
  * TOKENS
  */
 DO:
-    'DO';
+    'DO'|'do';
 
 FOR:
-    'FOR';
+    'FOR'|'for';
 
 GT:
     '>';

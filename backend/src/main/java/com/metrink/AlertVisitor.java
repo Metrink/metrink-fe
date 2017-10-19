@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.metrink.function.EventFunction;
 import com.metrink.function.LogFunction;
+import com.metrink.function.MetricFunction;
 import com.metrink.parser.MetrinkBackendParser.Absolute_date_literalContext;
 import com.metrink.parser.MetrinkBackendParser.Absolute_date_time_literalContext;
 import com.metrink.parser.MetrinkBackendParser.Absolute_time_literalContext;
@@ -39,45 +40,56 @@ import com.metrink.parser.MetrinkBackendParser.Relative_time_arrayContext;
 import com.metrink.parser.MetrinkBackendParser.Relative_time_literalContext;
 import com.metrink.parser.MetrinkBackendParser.String_arrayContext;
 import com.metrink.parser.MetrinkBackendParser.String_literalContext;
-import com.metrink.parser.MetrinkBackendParser.Trigger_expressionContext;
 import com.metrink.parser.MetrinkBackendVisitor;
 
 public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements MetrinkBackendVisitor<Object> {
     private static final Logger LOG = LoggerFactory.getLogger(AlertVisitor.class);
 
+    @Override
     public Object visitMetric_alert(final Metric_alertContext ctx) {
-        // TODO Auto-generated method stub
-        return null;
+        if (ctx.getChildCount() == 5) { // no duration
+            return new MetricAlert((MetricFunction) visit(ctx.getChild(0)), (String) visit(ctx.getChild(1)), (Number) visit(ctx.getChild(2)), (String) visit(ctx
+                    .getChild(4)));
+        } else {
+            return new MetricAlert((MetricFunction) visit(ctx.getChild(0)), (String) visit(ctx.getChild(1)), (Number) visit(ctx.getChild(2)),
+                    (LocalDateTime) visit(ctx.getChild(4)), (String) visit(ctx.getChild(6)));
+        }
     }
 
-    public Object visitTrigger_expression(final Trigger_expressionContext ctx) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
+    @Override
     public Object visitComparitor(final ComparitorContext ctx) {
-        // TODO Auto-generated method stub
-        return null;
+        return ctx.getText(); // just return the string for now
     }
 
+    @Override
     public Object visitMetric(final MetricContext ctx) {
-        // TODO Auto-generated method stub
-        return null;
+        if (ctx.children.size() == 6) {
+            return new MetricFunction((Map<String, List<Object>>) visit(ctx.getChild(2)), (LocalDateTime) visit(ctx.getChild(4)));
+        } else {
+            return new MetricFunction((Map<String, List<Object>>) visit(ctx.getChild(2)), null);
+        }
     }
 
+    @Override
     public Object visitLog(final LogContext ctx) {
-        return new LogFunction((Map<String, List<Object>>) this.visit(ctx.children.get(2)));
+        return new LogFunction((Map<String, List<Object>>) visit(ctx.getChild(2)));
     }
 
+    @Override
     public Object visitEvent(final EventContext ctx) {
-        return new EventFunction((Map<String, List<Object>>) this.visit(ctx.children.get(2)));
+        return new EventFunction((Map<String, List<Object>>) visit(ctx.getChild(2)));
     }
 
+    @Override
     public Object visitField_list(final Field_listContext ctx) {
-        final Map<String, List<Object>> fields = new HashMap<String, List<Object>>();
+        final Map<String, List<Object>> fields = new HashMap<>();
 
         for (final ParseTree child : ctx.children) {
-            final Entry<String, List<Object>> entry = (Entry<String, List<Object>>) this.visit(child);
+            if (",".equals(child.getText())) {
+                continue;
+            }
+
+            final Entry<String, List<Object>> entry = (Entry<String, List<Object>>) visit(child);
 
             if (fields.containsKey(entry.getKey())) {
                 throw new IllegalArgumentException("Field " + entry.getKey() + " is already set");
@@ -89,9 +101,10 @@ public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements Me
         return fields;
     }
 
+    @Override
     public Object visitField(final FieldContext ctx) {
-        final String identifier = (String) this.visit(ctx.children.get(0));
-        final Object value = this.visit(ctx.children.get(2)); // skip the colon
+        final String identifier = (String) visit(ctx.getChild(0));
+        final Object value = visit(ctx.getChild(2)); // skip the colon
 
         // force to list, if not string array
         if (!(value instanceof List)) {
@@ -101,18 +114,20 @@ public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements Me
         }
     }
 
+    @Override
     public Object visitNumber_array(final Number_arrayContext ctx) {
-        final List<Number> ret = new ArrayList<Number>();
+        final List<Number> ret = new ArrayList<>();
 
         for (final ParseTree child : ctx.children) {
-            ret.add((Number) this.visit(child));
+            ret.add((Number) visit(child));
         }
 
         return ret;
     }
 
+    @Override
     public Object visitNumber_literal(final Number_literalContext ctx) {
-        this.visitChildren(ctx);
+        visitChildren(ctx);
 
         final String literal = ctx.getText();
 
@@ -123,19 +138,21 @@ public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements Me
         }
     }
 
+    @Override
     public Object visitRelative_time_array(final Relative_time_arrayContext ctx) {
-        final List<LocalDateTime> ret = new ArrayList<LocalDateTime>();
+        final List<LocalDateTime> ret = new ArrayList<>();
 
         for (final ParseTree child : ctx.children) {
-            ret.add((LocalDateTime) this.visit(child));
+            ret.add((LocalDateTime) visit(child));
         }
 
         return ret;
     }
 
+    @Override
     public Object visitRelative_time_literal(final Relative_time_literalContext ctx) {
-        final Integer value = (Integer) this.visit(ctx.children.get(0));
-        final String unit = (String) this.visit(ctx.children.get(1));
+        final Integer value = (Integer) visit(ctx.getChild(0));
+        final String unit = (String) visit(ctx.getChild(1));
 
         ChronoUnit chronoUnit;
 
@@ -154,15 +171,17 @@ public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements Me
         return LocalDateTime.now().minus(Duration.of(value, chronoUnit));
     }
 
+    @Override
     public Object visitAbsolute_date_time_literal(final Absolute_date_time_literalContext ctx) {
-        final LocalDateTime date = (LocalDateTime) this.visit(ctx.children.get(0));
-        final LocalDateTime time = (LocalDateTime) this.visit(ctx.children.get(1));
+        final LocalDateTime date = (LocalDateTime) visit(ctx.getChild(0));
+        final LocalDateTime time = (LocalDateTime) visit(ctx.getChild(1));
 
         return LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), time.getHour(), time.getMinute());
     }
 
+    @Override
     public Object visitAbsolute_date_literal(final Absolute_date_literalContext ctx) {
-        this.visitChildren(ctx);
+        visitChildren(ctx);
 
         final String literal = ctx.getText();
 
@@ -173,8 +192,9 @@ public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements Me
         return LocalDateTime.from(formatter.parse(literal));
     }
 
+    @Override
     public Object visitAbsolute_time_literal(final Absolute_time_literalContext ctx) {
-        this.visitChildren(ctx);
+        visitChildren(ctx);
 
         final String literal = ctx.getText();
 
@@ -189,14 +209,16 @@ public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements Me
         return LocalDateTime.from(formatter.parse(literal));
     }
 
+    @Override
     public Object visitInteger_literal(final Integer_literalContext ctx) {
-        this.visitChildren(ctx);
+        visitChildren(ctx);
 
         return new Integer(ctx.getText());
     }
 
+    @Override
     public Object visitBoolean_literal(final Boolean_literalContext ctx) {
-        this.visitChildren(ctx);
+        visitChildren(ctx);
 
         if ("true".equalsIgnoreCase(ctx.getText())) {
             return Boolean.TRUE;
@@ -205,22 +227,25 @@ public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements Me
         }
     }
 
+    @Override
     public Object visitString_array(final String_arrayContext ctx) {
-        final List<String> ret = new ArrayList<String>();
+        final List<String> ret = new ArrayList<>();
 
         for (final ParseTree child : ctx.children) {
-            ret.add((String) this.visit(child));
+            ret.add((String) visit(child));
         }
 
         return ret;
     }
 
+    @Override
     public Object visitRegex_literal(final Regex_literalContext ctx) {
         throw new UnsupportedOperationException("Regular expressions not supported yet");
     }
 
+    @Override
     public Object visitString_literal(final String_literalContext ctx) {
-        this.visitChildren(ctx);
+        visitChildren(ctx);
 
         String strLit = ctx.getText();
         strLit = strLit.substring(1, strLit.length() - 1);

@@ -250,8 +250,8 @@ public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements Me
     public Object visitString_array(final String_arrayContext ctx) {
         final List<String> ret = new ArrayList<>();
 
-        for (final ParseTree child : ctx.children) {
-            ret.add((String) visit(child));
+        for (int i = 1; i < ctx.getChildCount(); i += 2) {
+            ret.add((String) visit(ctx.getChild(i)));
         }
 
         return ret;

@@ -27,4 +27,22 @@ public class MetricAlert {
         this.duration = duration;
         this.action = action;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder(metricFunction.toString());
+
+        sb.append(comparitor);
+        sb.append(limit);
+
+        if (duration != null) {
+            sb.append(" ");
+            sb.append(duration);
+        }
+
+        sb.append(" ");
+        sb.append(action);
+
+        return sb.toString();
+    }
 }

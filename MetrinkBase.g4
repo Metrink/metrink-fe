@@ -124,20 +124,17 @@ COLON:
     ':';
 
 PM_INDICATOR:
-    [pP][mM]/*(LOWER_M|'M')*/;
+    [pP][mM];
 
 AM_INDICATOR:
-    [aA][mM]/*(LOWER_M|'M')*/;
+    [aA][mM];
 
 TRUE:
     'true'|'TRUE';
 
 FALSE:
     'false'|'FALSE';
-/*
-LOWER_M:
-    'm';
-*/
+
 IDENTIFIER: /* must be 2-char long to disambiguate with metric/log/event */
     [a-zA-Z][a-zA-Z0-9_.]+;
 

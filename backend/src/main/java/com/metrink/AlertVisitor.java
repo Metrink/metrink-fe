@@ -27,12 +27,15 @@ import com.metrink.parser.MetrinkBackendParser.Absolute_time_literalContext;
 import com.metrink.parser.MetrinkBackendParser.Boolean_literalContext;
 import com.metrink.parser.MetrinkBackendParser.ComparitorContext;
 import com.metrink.parser.MetrinkBackendParser.EventContext;
+import com.metrink.parser.MetrinkBackendParser.Event_identContext;
 import com.metrink.parser.MetrinkBackendParser.FieldContext;
 import com.metrink.parser.MetrinkBackendParser.Field_listContext;
 import com.metrink.parser.MetrinkBackendParser.Integer_literalContext;
 import com.metrink.parser.MetrinkBackendParser.LogContext;
+import com.metrink.parser.MetrinkBackendParser.Log_identContext;
 import com.metrink.parser.MetrinkBackendParser.MetricContext;
 import com.metrink.parser.MetrinkBackendParser.Metric_alertContext;
+import com.metrink.parser.MetrinkBackendParser.Metric_identContext;
 import com.metrink.parser.MetrinkBackendParser.Number_arrayContext;
 import com.metrink.parser.MetrinkBackendParser.Number_literalContext;
 import com.metrink.parser.MetrinkBackendParser.Regex_literalContext;
@@ -40,6 +43,7 @@ import com.metrink.parser.MetrinkBackendParser.Relative_time_arrayContext;
 import com.metrink.parser.MetrinkBackendParser.Relative_time_literalContext;
 import com.metrink.parser.MetrinkBackendParser.String_arrayContext;
 import com.metrink.parser.MetrinkBackendParser.String_literalContext;
+import com.metrink.parser.MetrinkBackendParser.Time_indicatorContext;
 import com.metrink.parser.MetrinkBackendVisitor;
 
 public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements MetrinkBackendVisitor<Object> {
@@ -78,6 +82,21 @@ public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements Me
     @Override
     public Object visitEvent(final EventContext ctx) {
         return new EventFunction((Map<String, List<Object>>) visit(ctx.getChild(2)));
+    }
+
+    @Override
+    public Object visitMetric_ident(final Metric_identContext ctx) {
+        return ctx.getText();
+    }
+
+    @Override
+    public Object visitLog_ident(final Log_identContext ctx) {
+        return ctx.getText();
+    }
+
+    @Override
+    public Object visitEvent_ident(final Event_identContext ctx) {
+        return ctx.getText();
     }
 
     @Override
@@ -251,6 +270,11 @@ public class AlertVisitor extends AbstractParseTreeVisitor<Object> implements Me
         strLit = strLit.substring(1, strLit.length() - 1);
 
         return strLit;
+    }
+
+    @Override
+    public Object visitTime_indicator(final Time_indicatorContext ctx) {
+        return ctx.getText();
     }
 
     @Override

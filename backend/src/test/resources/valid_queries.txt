@@ -1,2 +1,5 @@
-# metric(f1: 'blah', f2: ['a', 'b'], f3: 12) > 1 do blah
+metric(f1: 'blah', f2: ['a', 'b'], f3: 12) > 1 do blah
 metric(f1: 'blah', f2: ['a', 'b'], f3: 12) > 1 for 5m do blah
+
+m(f1: 'blah', f2: ['a', 'b'], f3: 12) > 1 do blah
+m(f1: 'blah', f2: ['a', 'b'], f3: 12) > 1 for 5m do blah

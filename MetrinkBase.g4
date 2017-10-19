@@ -1,13 +1,22 @@
 grammar MetrinkBase;
 
 metric:
-    METRIC LPAREN field_list (COMMA (relative_time_literal|relative_time_array))? RPAREN;
+    metric_ident LPAREN field_list (COMMA (relative_time_literal|relative_time_array))? RPAREN;
 
 log:
-    LOG LPAREN field_list RPAREN;
+    log_ident LPAREN field_list RPAREN;
 
 event:
-    EVENT LPAREN field_list RPAREN;
+    event_ident LPAREN field_list RPAREN;
+
+metric_ident:
+    'metric' | 'm';
+
+log_ident:
+    'log' | 'l';
+
+event_ident:
+    'event' | 'e';
 
 field_list:
     field (COMMA field)*;
@@ -25,7 +34,7 @@ relative_time_array:
     LBRACKET relative_time_literal (COMMA relative_time_literal)* RBRACKET;
 
 relative_time_literal:
-    integer_literal TIME_INDICATOR;
+    integer_literal time_indicator;
 
 absolute_date_time_literal:
     absolute_date_literal absolute_time_literal;
@@ -50,6 +59,9 @@ regex_literal:
 
 string_literal:
     STRING_LITERAL;
+
+time_indicator:
+    's' | 'm' | 'h' | 'd';
 
 /*
  * TOKENS
@@ -111,33 +123,23 @@ REM:
 COLON:
     ':';
 
-TIME_INDICATOR:
-    [smhd];
-
 PM_INDICATOR:
-    [pP][mM];
+    [pP][mM]/*(LOWER_M|'M')*/;
 
 AM_INDICATOR:
-    [aA][mM];
-
-// these, metric in particular, need to be below the other'm' definitions
-METRIC:
-    ('metric'|'m');
-
-LOG:
-    ('log'|'l');
-
-EVENT:
-    ('event'|'e');
+    [aA][mM]/*(LOWER_M|'M')*/;
 
 TRUE:
     'true'|'TRUE';
 
 FALSE:
     'false'|'FALSE';
-
-IDENTIFIER:
-    [a-zA-Z][a-zA-Z0-9_.]*;
+/*
+LOWER_M:
+    'm';
+*/
+IDENTIFIER: /* must be 2-char long to disambiguate with metric/log/event */
+    [a-zA-Z][a-zA-Z0-9_.]+;
 
 POSITIVE_INTEGER_LITERAL:
     [0-9]+;

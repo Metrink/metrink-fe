@@ -1,7 +1,7 @@
 from datetime import datetime
 from pandas import DataFrame
 
-from frontend.functions.QueryFunction import QueryFunction
+from functions.QueryFunction import QueryFunction
 
 
 class AbsoluteValueFunction(QueryFunction):

@@ -3,10 +3,10 @@ import unittest
 from antlr4 import InputStream, CommonTokenStream
 from antlr4.error.ErrorListener import ErrorListener
 
-from frontend.parser.MetrinkLexer import MetrinkLexer
-from frontend.parser.MetrinkParser import MetrinkParser
+from parser.MetrinkFrontendLexer import MetrinkFrontendLexer
+from parser.MetrinkFrontendParser import MetrinkFrontendParser
 
-from frontend.QueryBuilderVisitor import QueryBuilderVisitor
+from QueryBuilderVisitor import QueryBuilderVisitor
 
 
 class MyErrorListener(ErrorListener, unittest.TestCase):
@@ -26,7 +26,7 @@ class MyErrorListener(ErrorListener, unittest.TestCase):
 class MetrinkParserTest(unittest.TestCase):
     def create_token_stream(self, line):
         istream = InputStream(line)
-        lexer = MetrinkLexer(istream)
+        lexer = MetrinkFrontendLexer(istream)
         stream = CommonTokenStream(lexer)
 
         stream.fill()
@@ -57,9 +57,9 @@ class MetrinkParserTest(unittest.TestCase):
                 if debug:
                     for token in stream.tokens:
                         if token.text != '<EOF>':
-                            print("%s: %s" % (token.text, MetrinkLexer.symbolicNames[token.type - 1]))
+                            print("%s: %s" % (token.text, MetrinkFrontendLexer.symbolicNames[token.type - 1]))
 
-                parser = MetrinkParser(stream)
+                parser = MetrinkFrontendParser(stream)
 
                 parser.removeErrorListeners()
                 parser.addErrorListener(MyErrorListener(l))
@@ -69,7 +69,7 @@ class MetrinkParserTest(unittest.TestCase):
     def test_valid_metric(self):
         query = "-1d metric(f1: 7, f2: ['a', 'b'], f3: {s*t})"
         stream = self.create_token_stream(query)
-        parser = MetrinkParser(stream)
+        parser = MetrinkFrontendParser(stream)
 
         parser.removeErrorListeners()
         parser.addErrorListener(MyErrorListener(query))

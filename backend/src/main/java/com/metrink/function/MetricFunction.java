@@ -16,4 +16,5 @@ public class MetricFunction extends AbstractFunction {
         super("MetricFunction", fields);
         this.overlay = overlay;
     }
+
 }

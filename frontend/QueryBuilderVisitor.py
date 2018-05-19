@@ -1,13 +1,13 @@
 import re
 
-from frontend.parser.MetrinkFrontendVisitor import MetrinkFrontendVisitor
-from frontend.parser.MetrinkFrontendParser import MetrinkFrontendParser
+from parser.MetrinkFrontendVisitor import MetrinkFrontendVisitor
+from parser.MetrinkFrontendParser import MetrinkFrontendParser
 
-from frontend.functions import QUERY_FUNCTIONS
-from frontend.functions.MathFunction import MathFunction
-from frontend.functions.MetricFunction import MetricFunction
-from frontend.functions.LogFunction import LogFunction
-from frontend.functions.EventFunction import EventFunction
+from functions import QUERY_FUNCTIONS
+from functions.MathFunction import MathFunction
+from functions.MetricFunction import MetricFunction
+from functions.LogFunction import LogFunction
+from functions.EventFunction import EventFunction
 
 from dateutil import parser
 import datetime

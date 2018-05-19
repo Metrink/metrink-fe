@@ -1,5 +1,6 @@
 backend/.settings
 backend/src/main/java/com/metrink/parser
+frontend/.idea
 
 vagrant/*.log
 vagrant/.vagrant/*

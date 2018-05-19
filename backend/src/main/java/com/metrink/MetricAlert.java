@@ -45,4 +45,14 @@ public class MetricAlert {
 
         return sb.toString();
     }
+
+    /**
+     * Checks to see if a given Metric matches this alert.
+     * @param metric
+     * @return
+     */
+    public boolean matches(final Metric metric) {
+
+    }
+
 }

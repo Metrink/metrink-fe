@@ -1,17 +1,19 @@
-from datetime import datetime
-from json import dumps
+import os
 
+from datetime import datetime
 from flask import Flask, render_template, redirect, request
 
-from graph import parse_query, generate_graph, generate_table
 from logger import logger
-from readers.Zabbix import Zabbix
-from explorers.Elasticsearch import Elasticsearch
+from configuration import Configuration
+from graph import parse_query, generate_graph, generate_table
+from explorers.ElasticsearchExplorer import ElasticsearchExplorer
+from explorers.MetricsExplorer import MetricsExplorer
 
 app = Flask(__name__)
 app.secret_key = '9CwkXojJdwUMk0Fn6CfN'
 
-zabbix = None
+config = Configuration(os.path.join(app.root_path, 'configuration.yml'))
+
 
 # def public_route(function):
 #     function.is_public = True
@@ -26,8 +28,7 @@ def render(template, title, **kwargs):
 # def favicon():
 #     return send_from_directory(os.path.join(app.root_path, 'static'), 'img/favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-def before_first_request():
-    zabbix = Zabbix()
+# def before_first_request():
 
 @app.route('/')
 def root():
@@ -71,28 +72,21 @@ def graph():
 
 @app.route('/explore')
 def explore():
+    type = request.args.get('type', 'metrics')
+
     start_timer = datetime.now()
 
-    ee = Elasticsearch()
+    if type == 'logs':
+        explorer = ElasticsearchExplorer()
+    else:
+        explorer = MetricsExplorer(config)
 
-    indexes = ee.get_indexes()
+    table_data = explorer.get_table_data()
 
     end_timer = datetime.now()
     logger.debug('Took %0.02fs to process this request' % (end_timer-start_timer).total_seconds())
 
-    return render(ee.get_template(), 'Explore', table_data=dumps(indexes))
-
-
-#
-# API endpoints
-#
-# @app.route('/api/indexes')
-# def api_hosts():
-#     ee = Elasticsearch()
-#
-#     indexes = ee.get_indexes()
-#
-#     return dumps(indexes)
+    return render(explorer.get_template(), 'Explore', table_data=table_data)
 
 
 if __name__ == '__main__':

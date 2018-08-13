@@ -27,33 +27,9 @@ tr.shown td.details-control {
 {% block content %}
 <div class="row">
     <div class="col-sm-12 text-center">
-        <h2><i class="fa fa-search"></i> Explore</h2>
+        <h2><i class="fa fa-search"></i> Explore Metrics</h2>
     </div>
 </div>
-
-<!--
-<div class="row">
-    <div class="col-sm-12">
-        <form class="form-horizontal" action="/explore" method="get">
-            <div class="form-group">
-                <label for="index" class="col-md-1 col-md-offset-3 col-sm-2 control-label">Index</label>
-                <div class="col-md-4 col-sm-8">
-                    <div id="index_typeahead">
-                        <input type="text" class="form-control typeahead" id="index" name="index" value="{{index}}"/>
-                    </div>
-                </div>
-            </div>
-            <button type="submit" style="display: none"></button>
-        </form>
-    </div>
-</div>
-
-<div id="loader" class="row">
-    <div class="col-md-10 col-md-offset-1 col-sm-12 text-center">
-        <img src="{{url_for('static', filename='img/loader.gif')}}"/>
-    </div>
-</div>
--->
 
 <div class="row">
     <div class="col-md-10 col-md-offset-1 col-sm-12">
@@ -67,23 +43,6 @@ tr.shown td.details-control {
 <script src="{{url_for('static', filename='js/typeahead.bundle.js')}}"></script>
 
 <script>
-/*
-$(function() {
-    var config = {
-        hint: true,
-        highlight: true,
-        minLength: 1
-    };
-
-    var index = new Bloodhound({
-        datumTokenizer: Bloodhound.tokenizers.whitespace,
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        prefetch: {url: '/api/indexes', cache: false}
-    });
-
-    $('#index_typeahead .typeahead').typeahead(config, {name: 'index', limit: 25, source: index});
-});
-*/
 </script>
 
 <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
@@ -94,11 +53,11 @@ function format(d) {
     // 'd' is the original data object for the row
     var ret = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
 
-    for(i=0; i < d.fields.length; i++) {
-        var url = encodeURIComponent('-1h l(index="' + d.index + '", ' + d.fields[i] + '=)');
+    for(i=0; i < d.values.length; i++) {
+        var url = encodeURIComponent('-1h m(' + d.tag + ': "' + d.values[i] + '")');
 
         ret += '<tr><td>';
-        ret += '<a target="_blank" href="/graph?render=False&q=' + url + '">' + d.fields[i] + '</a>';
+        ret += '<a target="_blank" href="/graph?render=False&q=' + url + '">' + d.values[i] + '</a>';
         ret += '</td></tr>';
     }
 
@@ -111,7 +70,7 @@ $(function() {
         columns: [
             {
                 render: function(data, type, full, meta) {
-                    var url = encodeURIComponent('-1h l(index="' + full.index + '")');
+                    var url = encodeURIComponent('-1h l(' + full.tag + '": "*")');
                     return '<a target="_blank" href="/graph?render=False&q=' + url + '"><i class="fa fa-line-chart"></i></a>';
                 },
                 orderable: false,
@@ -122,8 +81,7 @@ $(function() {
                 data: null,
                 defaultContent: ''
             },
-            {data: 'index', title: 'Index'},
-            {data: 'created', title: 'Created'},
+            {data: 'tag', title: 'Tag'},
         ],
         pageLength: 25,
         searching: false,

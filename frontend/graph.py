@@ -3,12 +3,11 @@ from antlr4.error.ErrorListener import ErrorListener
 from pandas import DataFrame
 from pandas_highcharts.core import serialize
 
+from logger import logger
 from QueryBuilderVisitor import QueryBuilderVisitor
 from functions.QueryFunction import QueryFunction
-from logger import logger
-from parser.MetrinkLexer import MetrinkLexer
-from parser.MetrinkParser import MetrinkParser
-from readers.Zabbix import Zabbix
+from parser.MetrinkFrontendLexer import MetrinkFrontendLexer
+from parser.MetrinkFrontendParser import MetrinkFrontendParser
 
 
 class MyErrorListener(ErrorListener):
@@ -31,7 +30,7 @@ def parse_query(query:str) -> (str,str,list,DataFrame):
     :return: the start, end, expression, and QueryFunction
     """
     istream = InputStream(query)
-    lexer = MetrinkLexer(istream)
+    lexer = MetrinkFrontendLexer(istream)
     stream = CommonTokenStream(lexer)
 
     # fill the token stream
@@ -39,11 +38,11 @@ def parse_query(query:str) -> (str,str,list,DataFrame):
 
     for token in stream.tokens:
         if token.text != '<EOF>':
-            print("%s: %s" % (token.text, MetrinkLexer.symbolicNames[token.type-1]))
+            print("%s: %s" % (token.text, MetrinkFrontendLexer.symbolicNames[token.type-1]))
 
 
     # create a parser
-    parser = MetrinkParser(stream)
+    parser = MetrinkFrontendParser(stream)
 
     # setup a custom error listener
     parser.removeErrorListeners()

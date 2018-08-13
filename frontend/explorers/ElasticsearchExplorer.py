@@ -9,7 +9,7 @@ from logger import logger
 from cache import get_cache
 
 
-class Elasticsearch(Explorer):
+class ElasticsearchExplorer(Explorer):
     def __init__(self):
         super().__init__('Elasticsearch')
         self.client = elasticsearch.Elasticsearch(host='10.40.109.166')
@@ -30,7 +30,7 @@ class Elasticsearch(Explorer):
             field_name.append(field)
 
             if 'properties' in value:
-                fields.update(Elasticsearch.flatten_fields(value['properties'], field_name))
+                fields.update(ElasticsearchExplorer.flatten_fields(value['properties'], field_name))
             else:
                 fields.add('.'.join(field_name))
 
@@ -39,19 +39,14 @@ class Elasticsearch(Explorer):
 
         return fields
 
-    def get_indexes(self):
-        # ret = self.cache.get('es_indices')
-        # ret = None
-
-        # if ret is not None:
-        #     return ret
-
+    def get_table_data(self):
         res = self.cache.get('es_indices')
         # res = None
 
-        if res is None:
-            res = self.client.indices.get('_all')
-            self.cache.set('es_indices', res)
+        if res is not None:
+            return dumps(res)
+
+        res = self.client.indices.get('_all')  # get all the indices
 
         ret = []
 
@@ -66,7 +61,7 @@ class Elasticsearch(Explorer):
 
             for map_name, mapping in value['mappings'].items():
                 if 'properties' in mapping:
-                    fields.update(Elasticsearch.flatten_fields(mapping['properties']))
+                    fields.update(ElasticsearchExplorer.flatten_fields(mapping['properties']))
 
             ret.append({
                 'index': index,
@@ -74,6 +69,6 @@ class Elasticsearch(Explorer):
                 'fields': sorted(fields)
             })
 
-        # self.cache.set('es_indices', ret)
+        self.cache.set('es_indices', ret)
 
-        return ret
+        return dumps(ret)

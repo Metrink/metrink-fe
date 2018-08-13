@@ -1,10 +1,11 @@
 from datetime import datetime
 
+
 class Reader(object):
     def __init__(self):
         pass
 
-    def get_results(self, start_time:datetime, end_time:datetime, tags:dict, tags_include=None:dict):
+    def get_results(self, start_time: datetime, end_time: datetime, tags: dict, tags_include: dict=None):
         """
         Returns a Pandas DataFrame given a search specification
         :param start_time: start of the time range

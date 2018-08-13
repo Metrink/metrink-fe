@@ -1,0 +1,11 @@
+redis:
+  host: dlt-monitoring-redis-1.datto.lan
+  port: 6379
+  password: '(7_s/YqGjz8JCxBy'
+
+cassandra:
+  hosts:
+   - dlt-mon-cass-blade-1
+   - dlt-mon-cass-blade-2
+   - dlt-mon-cass-blade-3
+  keyspace: metrics

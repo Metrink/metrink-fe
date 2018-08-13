@@ -11,3 +11,9 @@ class Explorer(object):
         """
         pass
 
+    def get_table_data(self):
+        """
+        Gets the data for the main table
+        :return:
+        """
+        pass

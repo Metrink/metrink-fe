@@ -36,11 +36,11 @@ public class MetricAlert {
         sb.append(limit);
 
         if (duration != null) {
-            sb.append(" ");
+            sb.append(" for ");
             sb.append(duration);
         }
 
-        sb.append(" ");
+        sb.append(" do ");
         sb.append(action);
 
         return sb.toString();
